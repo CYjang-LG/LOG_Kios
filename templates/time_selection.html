@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block header %}
+<h1>사용 시간을 선택하세요</h1>
+<p>{{ user_name }}님의 {{ equipment_name }} 사용 시간</p>
+{% endblock %}
+
+{% block content %}
+<form action="{{ url_for('confirm_usage') }}" method="post">
+    <input type="hidden" name="user_name" value="{{ user_name }}">
+    <input type="hidden" name="equipment_name" value="{{ equipment_name }}">
+    
+    <div class="grid grid-4">
+        {% for time_option in time_options %}
+        <button type="submit" name="duration" value="{{ time_option.minutes }}" class="touch-btn">
+            <div>
+                <div style="font-size: 1.3em; margin-bottom: 8px;">⏰</div>
+                <div>{{ time_option.text }}</div>
+            </div>
+        </button>
+        {% endfor %}
+    </div>
+</form>
+{% endblock %}

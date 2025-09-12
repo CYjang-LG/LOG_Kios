@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block header %}
+<h1>관리자 페이지</h1>
+<p>시스템 관리 및 설정</p>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-2">
+    <a href="{{ url_for('logs') }}" class="touch-btn">
+        <div>
+            <div style="font-size: 2em; margin-bottom: 15px;">📊</div>
+            <div>사용 로그 확인</div>
+        </div>
+    </a>
+    
+    <a href="{{ url_for('users') }}" class="touch-btn success">
+        <div>
+            <div style="font-size: 2em; margin-bottom: 15px;">👥</div>
+            <div>사용자 관리</div>
+        </div>
+    </a>
+    
+    <a href="{{ url_for('equipment_manage') }}" class="touch-btn secondary">
+        <div>
+            <div style="font-size: 2em; margin-bottom: 15px;">🔧</div>
+            <div>장비 관리</div>
+        </div>
+    </a>
+    
+    <a href="{{ url_for('export') }}" class="touch-btn" style="background: linear-gradient(145deg, #f39c12, #e67e22);">
+        <div>
+            <div style="font-size: 2em; margin-bottom: 15px;">📥</div>
+            <div>데이터 내보내기</div>
+        </div>
+    </a>
+</div>
+{% endblock %}

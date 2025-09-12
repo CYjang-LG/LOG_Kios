@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block header %}
+<h1>사용자 관리</h1>
+<p>사용자 추가 및 삭제</p>
+{% endblock %}
+
+{% block content %}
+<!-- 사용자 추가 폼 -->
+<div style="background: #f8f9fa; padding: 30px; border-radius: 15px; margin-bottom: 30px;">
+    <h3 style="color: #333; margin-bottom: 20px;">새 사용자 추가</h3>
+    <form method="post" action="{{ url_for('add_user') }}" id="userForm">
+        <div class="grid grid-3" style="gap: 20px; margin-bottom: 20px;">
+            <input type="text" name="name" placeholder="학생 이름 (필수)" required
+                   style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1.1em;">
+            
+            <select name="department_id" id="departmentSelect" required onchange="loadProfessors()"
+                    style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1.1em;">
+                <option value="">학과 선택</option>
+                {% for dept in departments %}
+                <option value="{{ dept.id }}">{{ dept.name }}</option>
+                {% endfor %}
+            </select>
+            
+            <select name="professor_id" id="professorSelect" required
+                    style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1.1em;">
+                <option value="">교수 선택</option>
+            </select>
+        </div>
+        <button type="submit" class="touch-btn success">➕ 사용자 추가</button>
+    </form>
+</div>
+
+<!-- 사용자 목록 -->
+<div style="background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden;">
+    <div style="background: linear-gradient(145deg, #667eea, #764ba2); color: white; padding: 20px;">
+        <h3 style="margin: 0;">등록된 사용자 ({{ users|length }}명)</h3>
+    </div>
+    
+    {% if users|length > 0 %}
+    <div style="max-height: 500px; overflow-y: auto;">
+        {% for user in users %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #eee;">
+            <div>
+                <div style="font-size: 1.2em; font-weight: 600; color: #333; margin-bottom: 5px;">
+                    👤 {{ user.name }}
+                </div>
+                <div style="color: #666; font-size: 1em;">
+                    {% if user.department_name and user.professor_name %}
+                    {{ user.department_name }} - {{ user.professor_name }} 교수
+                    {% else %}
+                    정보 없음
+                    {% endif %}
+                </div>
+            </div>
+            <a href="{{ url_for('delete_user', user_id=user.id) }}" 
+               onclick="return confirm('{{ user.name }}님을 삭제하시겠습니까?')"
+               style="background: #e74c3c; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none;">
+                🗑️ 삭제
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 50px; color: #666;">
+        <p style="font-size: 1.3em;">등록된 사용자가 없습니다.</p>
+        <p>위의 폼을 이용해 사용자를 추가해주세요.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+async function loadProfessors() {
+    const departmentId = document.getElementById('departmentSelect').value;
+    const professorSelect = document.getElementById('professorSelect');
+    
+    // 교수 선택 초기화
+    professorSelect.innerHTML = '<option value="">교수 선택</option>';
+    
+    if (!departmentId) return;
+    
+    try {
+        const response = await fetch(`/get-professors/${departmentId}`);
+        const professors = await response.json();
+        
+        professors.forEach(prof => {
+            const option = document.createElement('option');
+            option.value = prof.id;
+            option.textContent = prof.name + ' 교수';
+            professorSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('교수 목록 로딩 실패:', error);
+    }
+}
+</script>
+{% endblock %}
