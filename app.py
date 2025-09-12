@@ -25,23 +25,34 @@ def get_db_connection():
 
 def init_db():
     conn = get_db_connection()
-    # 로그 테이블
-    conn.execute('''CREATE TABLE IF NOT EXISTS logs (
+    
+    # 학과 테이블
+    conn.execute('''CREATE TABLE IF NOT EXISTS departments (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    date TEXT,
-                    user_name TEXT,
-                    equipment TEXT,
-                    start_time TEXT,
-                    duration INTEGER,
+                    name TEXT UNIQUE,
+                    is_active BOOLEAN DEFAULT 1,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )''')
     
-    # 사용자 테이블
+    # 교수 테이블
+    conn.execute('''CREATE TABLE IF NOT EXISTS professors (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT,
+                    department_id INTEGER,
+                    is_active BOOLEAN DEFAULT 1,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (department_id) REFERENCES departments (id)
+                )''')
+    
+    # 사용자 테이블 (수정된 구조)
     conn.execute('''CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT UNIQUE,
-                    department TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    name TEXT,
+                    department_id INTEGER,
+                    professor_id INTEGER,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (department_id) REFERENCES departments (id),
+                    FOREIGN KEY (professor_id) REFERENCES professors (id)
                 )''')
     
     # 장비 테이블
@@ -52,7 +63,31 @@ def init_db():
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )''')
     
-    # 기본 장비 데이터 삽입
+    # 로그 테이블 (수정된 구조)
+    conn.execute('''CREATE TABLE IF NOT EXISTS logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    date TEXT,
+                    department TEXT,
+                    professor TEXT,
+                    student_name TEXT,
+                    equipment TEXT,
+                    start_time TEXT,
+                    end_time TEXT,
+                    duration INTEGER,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )''')
+    
+    # 기본 데이터 삽입
+    # 기본 학과 데이터
+    default_departments = [
+        '생명과학과', '화학과', '물리학과', '수학과', '컴퓨터과학과',
+        '전자공학과', '기계공학과', '화학공학과', '재료공학과', '환경공학과'
+    ]
+    
+    for dept_name in default_departments:
+        conn.execute('INSERT OR IGNORE INTO departments (name) VALUES (?)', (dept_name,))
+    
+    # 기본 장비 데이터
     default_equipment = [
         'PCR Machine', 'Centrifuge', 'Microscope', 'Incubator',
         'Autoclave', 'Spectrophotometer', 'pH Meter', 'Balance',
@@ -75,7 +110,13 @@ init_db()
 def index():
     """시작 화면 - 사용자 선택"""
     conn = get_db_connection()
-    users = conn.execute('SELECT * FROM users ORDER BY name').fetchall()
+    users = conn.execute('''
+        SELECT u.*, d.name as department_name, p.name as professor_name
+        FROM users u
+        LEFT JOIN departments d ON u.department_id = d.id
+        LEFT JOIN professors p ON u.professor_id = p.id
+        ORDER BY u.name
+    ''').fetchall()
     conn.close()
     return render_template('index.html', users=users)
 
@@ -83,18 +124,22 @@ def index():
 def equipment_selection_simple(user_name):
     """단순 장비 선택 화면"""
     conn = get_db_connection()
-    # 필요한 장비 목록만 가져오거나, 단순화된 데이터만 가져오기
     equipment_list = conn.execute(
         'SELECT * FROM equipment WHERE is_active = 1 ORDER BY name'
     ).fetchall()
     conn.close()
+    return render_template('equipment_simple.html', user_name=user_name, equipment_list=equipment_list)
 
-    # 별도의 템플릿으로 렌더링
-    return render_template(
-        'equipment_simple.html',
-        user_name=user_name,
-        equipment_list=equipment_list
-    )
+@app.route('/equipment/<user_name>')
+def equipment_selection(user_name):
+    """일반 장비 선택 화면"""
+    conn = get_db_connection()
+    equipment_list = conn.execute(
+        'SELECT * FROM equipment WHERE is_active = 1 ORDER BY name'
+    ).fetchall()
+    conn.close()
+    return render_template('equipment.html', user_name=user_name, equipment_list=equipment_list)
+
 @app.route('/time-selection/<user_name>/<equipment_name>')
 def time_selection(user_name, equipment_name):
     """시간 선택 화면"""
@@ -117,11 +162,19 @@ def time_selection(user_name, equipment_name):
 @app.route('/confirm-usage', methods=['POST'])
 def confirm_usage():
     """사용 기록 저장"""
-    department_name = request.form.get('department_name')
-    professor_name = request.form.get('professor_name')
-    student_name = request.form.get('student_name')
+    user_name = request.form.get('user_name')
     equipment_name = request.form.get('equipment_name')
     duration = int(request.form.get('duration'))
+    
+    # 사용자 정보 조회
+    conn = get_db_connection()
+    user_info = conn.execute('''
+        SELECT u.*, d.name as department_name, p.name as professor_name
+        FROM users u
+        LEFT JOIN departments d ON u.department_id = d.id
+        LEFT JOIN professors p ON u.professor_id = p.id
+        WHERE u.name = ?
+    ''', (user_name,)).fetchone()
     
     current_time = datetime.now()
     date = current_time.strftime('%Y-%m-%d')
@@ -131,11 +184,14 @@ def confirm_usage():
     end_datetime = current_time + timedelta(minutes=duration)
     end_time = end_datetime.strftime('%H:%M')
     
-    conn = get_db_connection()
+    # 기본값 설정
+    department_name = user_info['department_name'] if user_info and user_info['department_name'] else '정보없음'
+    professor_name = user_info['professor_name'] if user_info and user_info['professor_name'] else '정보없음'
+    
     conn.execute('''INSERT INTO logs 
                    (date, department, professor, student_name, equipment, start_time, end_time, duration) 
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-                 (date, department_name, professor_name, student_name, equipment_name, start_time, end_time, duration))
+                 (date, department_name, professor_name, user_name, equipment_name, start_time, end_time, duration))
     conn.commit()
     conn.close()
     
@@ -149,7 +205,7 @@ def confirm_usage():
         <div style="font-size: 1.5em; margin-bottom: 20px;">✅ 기록되었습니다!</div>
         <div><strong>학과:</strong> {department_name}</div>
         <div><strong>교수:</strong> {professor_name}</div>
-        <div><strong>학생:</strong> {student_name}</div>
+        <div><strong>학생:</strong> {user_name}</div>
         <div><strong>장비:</strong> {equipment_name}</div>
         <div><strong>사용시간:</strong> {start_time} ~ {end_time} ({duration_text})</div>
     </div>
@@ -181,7 +237,7 @@ def logs():
     # 검색 조건 추가
     conditions = []
     if search:
-        conditions.append("user_name LIKE ?")
+        conditions.append("student_name LIKE ?")
         params.append(f'%{search}%')
     
     if equipment_filter:
@@ -221,10 +277,159 @@ def logs():
                          equipment_filter=equipment_filter,
                          equipment_list=equipment_list)
 
-# 기존 users 관련 라우트 제거하고 새로운 구조로 변경
+# === 사용자 관리 ===
+@app.route('/users')
+def users():
+    """사용자 관리 페이지"""
+    conn = get_db_connection()
+    users_data = conn.execute('''
+        SELECT u.*, d.name as department_name, p.name as professor_name
+        FROM users u
+        LEFT JOIN departments d ON u.department_id = d.id
+        LEFT JOIN professors p ON u.professor_id = p.id
+        ORDER BY u.name
+    ''').fetchall()
+    
+    departments = conn.execute('SELECT * FROM departments WHERE is_active = 1 ORDER BY name').fetchall()
+    conn.close()
+    return render_template('users.html', users=users_data, departments=departments)
 
-# users 관련 라우트 제거됨 - 이제 departments와 professors 사용
+@app.route('/add-user', methods=['POST'])
+def add_user():
+    """사용자 추가"""
+    name = request.form.get('name', '').strip()
+    department_id = request.form.get('department_id')
+    professor_id = request.form.get('professor_id')
+    
+    if not name:
+        flash('학생 이름을 입력해주세요!')
+        return redirect(url_for('users'))
+    
+    conn = get_db_connection()
+    try:
+        conn.execute('INSERT INTO users (name, department_id, professor_id) VALUES (?, ?, ?)', 
+                    (name, department_id, professor_id))
+        conn.commit()
+        flash(f'{name}님이 추가되었습니다!')
+    except Exception as e:
+        flash('사용자 추가 중 오류가 발생했습니다!')
+        print(f"Error adding user: {e}")
+    finally:
+        conn.close()
+    
+    return redirect(url_for('users'))
 
+@app.route('/delete-user/<int:user_id>')
+def delete_user(user_id):
+    """사용자 삭제"""
+    conn = get_db_connection()
+    conn.execute('DELETE FROM users WHERE id = ?', (user_id,))
+    conn.commit()
+    conn.close()
+    flash('사용자가 삭제되었습니다!')
+    return redirect(url_for('users'))
+
+@app.route('/get-professors/<int:department_id>')
+def get_professors(department_id):
+    """특정 학과의 교수 목록 API"""
+    conn = get_db_connection()
+    professors = conn.execute(
+        'SELECT * FROM professors WHERE department_id = ? AND is_active = 1 ORDER BY name', 
+        (department_id,)
+    ).fetchall()
+    conn.close()
+    
+    result = [{'id': p['id'], 'name': p['name']} for p in professors]
+    return jsonify(result)
+
+# === 학과 관리 ===
+@app.route('/departments')
+def departments():
+    """학과 관리 페이지"""
+    conn = get_db_connection()
+    departments_data = conn.execute('SELECT * FROM departments ORDER BY name').fetchall()
+    conn.close()
+    return render_template('departments.html', departments=departments_data)
+
+@app.route('/add-department', methods=['POST'])
+def add_department():
+    """학과 추가"""
+    name = request.form.get('name', '').strip()
+    
+    if not name:
+        flash('학과명을 입력해주세요!')
+        return redirect(url_for('departments'))
+    
+    conn = get_db_connection()
+    try:
+        conn.execute('INSERT INTO departments (name) VALUES (?)', (name,))
+        conn.commit()
+        flash(f'{name}이(가) 추가되었습니다!')
+    except sqlite3.IntegrityError:
+        flash('이미 존재하는 학과입니다!')
+    finally:
+        conn.close()
+    
+    return redirect(url_for('departments'))
+
+@app.route('/toggle-department/<int:department_id>')
+def toggle_department(department_id):
+    """학과 활성화/비활성화"""
+    conn = get_db_connection()
+    conn.execute('UPDATE departments SET is_active = NOT is_active WHERE id = ?', (department_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('departments'))
+
+# === 교수 관리 ===
+@app.route('/professors')
+def professors():
+    """교수 관리 페이지"""
+    conn = get_db_connection()
+    professors_data = conn.execute('''
+        SELECT p.*, d.name as department_name
+        FROM professors p
+        LEFT JOIN departments d ON p.department_id = d.id
+        ORDER BY p.name
+    ''').fetchall()
+    
+    departments = conn.execute('SELECT * FROM departments WHERE is_active = 1 ORDER BY name').fetchall()
+    conn.close()
+    return render_template('professor.html', professors=professors_data, departments=departments)
+
+@app.route('/add-professor', methods=['POST'])
+def add_professor():
+    """교수 추가"""
+    name = request.form.get('name', '').strip()
+    department_id = request.form.get('department_id')
+    
+    if not name or not department_id:
+        flash('교수명과 학과를 모두 입력해주세요!')
+        return redirect(url_for('professors'))
+    
+    conn = get_db_connection()
+    try:
+        conn.execute('INSERT INTO professors (name, department_id) VALUES (?, ?)', (name, department_id))
+        conn.commit()
+        flash(f'{name} 교수가 추가되었습니다!')
+    except Exception as e:
+        flash('교수 추가 중 오류가 발생했습니다!')
+        print(f"Error adding professor: {e}")
+    finally:
+        conn.close()
+    
+    return redirect(url_for('professors'))
+
+@app.route('/toggle-professor/<int:professor_id>')
+def toggle_professor(professor_id):
+    """교수 활성화/비활성화"""
+    conn = get_db_connection()
+    conn.execute('UPDATE professors SET is_active = NOT is_active WHERE id = ?', (professor_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('professors'))
+
+# === 장비 관리 ===
 @app.route('/equipment-manage')
 def equipment_manage():
     """장비 관리 페이지"""
