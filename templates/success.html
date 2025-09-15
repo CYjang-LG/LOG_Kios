@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block header %}
+<h1>✅ 기록 완료!</h1>
+<p>장비 사용이 등록되었습니다</p>
+{% endblock %}
+
+{% block content %}
+<div style="background: white; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 30px;">
+    <div style="font-size: 3em; margin-bottom: 20px;">✅</div>
+    
+    <div style="font-size: 1.5em; color: #2ecc71; font-weight: 600; margin-bottom: 30px;">
+        기록되었습니다!
+    </div>
+    
+    <div style="background: #f8f9fa; padding: 25px; border-radius: 15px; text-align: left; max-width: 500px; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 15px; font-size: 1.1em; line-height: 1.8;">
+            <div style="font-weight: 600; color: #666;">학과:</div>
+            <div>{{ department or '미입력' }}</div>
+            
+            <div style="font-weight: 600; color: #666;">교수:</div>
+            <div>{{ professor or '미입력' }} 교수</div>
+            
+            <div style="font-weight: 600; color: #666;">학생:</div>
+            <div>{{ student or '미입력' }}</div>
+            
+            <div style="font-weight: 600; color: #666;">장비:</div>
+            <div>{{ equipment or '미입력' }}</div>
+            
+            <div style="font-weight: 600; color: #666;">시간:</div>
+            <div>
+                {% if start_time and end_time %}
+                    {{ start_time }} ~ {{ end_time }}
+                {% else %}
+                    미입력
+                {% endif %}
+            </div>
+            
+            <div style="font-weight: 600; color: #666;">사용시간:</div>
+            <div style="color: #e74c3c; font-weight: 600;">
+                {{ duration_text or '미입력' }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="text-align: center;">
+    <a href="{{ url_for('index') }}" class="touch-btn success" style="font-size: 1.3em; padding: 25px 50px;">
+        🏠 처음으로 돌아가기
+    </a>
+</div>
+
+<script>
+// 10초 후 자동으로 메인 화면으로 이동
+setTimeout(function() {
+    window.location.href = '{{ url_for("index") }}';
+}, 10000);
+</script>
+{% endblock %}

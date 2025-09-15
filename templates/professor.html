@@ -44,7 +44,11 @@
                         👨‍🏫 {{ prof.name }} 교수
                     </div>
                     <div style="color: #666; font-size: 0.9em;">
-                        {{ prof.department_name }}
+                        {% if prof.department_name %}
+                            {{ prof.department_name }}
+                        {% else %}
+                            정보 없음
+                        {% endif %}
                         {% if prof.is_active %} - 활성화됨{% else %} - 비활성화됨{% endif %}
                     </div>
                 </div>
@@ -65,4 +69,4 @@
     </div>
     {% endif %}
 </div>
-{% endblock %>
+{% endblock %}

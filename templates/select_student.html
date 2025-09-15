@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block header %}
+
+<div style="display: flex; align-items: center; justify-content: space-between;">
+    <!-- 왼쪽 로고 -->
+    <div style="flex: 0 0 auto;">
+        <img src="{{ url_for('static', filename='inha_logo.png') }}" 
+             alt="학교 로고" 
+             style="width: 200px; height: auto;">
+    </div>
+    
+    <!-- 가운데 제목 -->
+    <div style="flex: 1; text-align: center;">
+        <h1>사용자 선택</h1>
+        <p>{{ department.name }} - {{ professor.name }}교수님 소속</p>
+    </div>
+    
+    <!-- 오른쪽 여백 (대칭 맞추기용) -->
+    <div style="flex: 0 0 200px;"></div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-3">
+    {% for student in students %}
+    <a href="{{ url_for('equipment_selection', department_id=department.id, professor_id=professor.id, student_id=student.id) }}" class="touch-btn">
+        <div>
+            <div style="font-size: 1.5em; margin-bottom: 10px; text-align: center;">👤</div>
+            <div style="font-size: 1.1em; font-weight: 600;">{{ student.name }}</div>
+        </div>
+    </a>
+    {% endfor %}
+    
+    <!-- 새 학생 추가 버튼 -->
+    <a href="{{ url_for('quick_add_student') }}" class="touch-btn" style="background: linear-gradient(145deg, #e74c3c, #c0392b); border: 3px dashed white;">
+        <div>
+            <div style="font-size: 1.5em; margin-bottom: 10px;">➕</div>
+            <div style="font-size: 1em; font-weight: 600;">새 학생 추가</div>
+        </div>
+    </a>
+</div>
+
+{% if students|length == 0 %}
+<div style="text-align: center; margin-top: 50px;">
+    <p style="font-size: 1.3em; color: #666; margin-bottom: 30px;">{{ professor.name }} 교수님 연구실에 등록된 학생이 없습니다.</p>
+    <a href="{{ url_for('quick_add_student') }}" class="touch-btn">학생 추가하기</a>
+</div>
+{% endif %}
+{% endblock %}

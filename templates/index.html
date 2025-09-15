@@ -1,33 +1,62 @@
 {% extends "base.html" %}
 
 {% block header %}
-<h1>사용자를 선택하세요</h1>
-<p>본인의 이름을 터치해주세요</p>
+<div style="display: flex; align-items: center; justify-content: space-between;">
+    <!-- 왼쪽 로고 -->
+    <div style="flex: 0 0 auto;">
+        <img src="{{ url_for('static', filename='inha_logo.png') }}" 
+             alt="학교 로고" 
+             style="width: 200px; height: auto;">
+    </div>
+    
+    <!-- 가운데 제목 -->
+    <div style="flex: 1; text-align: center;">
+        <h1>소속 선택</h1>
+        <p>사용자의 소속을 선택해주세요</p>
+    </div>
+    
+    <!-- 오른쪽 여백 (대칭 맞추기용) -->
+    <div style="flex: 0 0 200px;"></div>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="grid grid-3">
-    {% for user in users %}
-    <a href="{{ url_for('equipment_selection_simple', user_name=user.name) }}" class="touch-btn">
+<div style="margin-bottom: 20px; text-align: center;">
+    <p style="color: #666; font-size: 1.1em;">현재 {{ departments|length }}개의 학과가 등록되어 있습니다.</p>
+</div>
 
+<div class="grid grid-3">
+    {% for department in departments %}
+    <a href="{{ url_for('select_professor', department_id=department.id) }}" class="touch-btn">
         <div>
-            <div style="font-size: 1.5em; margin-bottom: 10px;">👤</div>
-            <div style="font-size: 1.1em; font-weight: 600; margin-bottom: 8px;">{{ user.name }}</div>
-            {% if user.department_name and user.professor_name %}
-            <div style="font-size: 0.9em; opacity: 0.8; line-height: 1.2;">
-                {{ user.department_name }}<br>{{ user.professor_name }} 교수
-            </div>
-            {% endif %}
+            <div style="font-size: 1.5em; margin-bottom: 10px; text-align: center;">🏫</div>
+            <div style="font-size: 1.1em; font-weight: 600;">{{ department.name }}</div>
         </div>
     </a>
     {% endfor %}
     
-    {% if users|length == 0 %}
-    <div style="text-align: center; grid-column: 1 / -1; margin-top: 50px;">
-        <p style="font-size: 1.3em; color: #666; margin-bottom: 30px;">등록된 사용자가 없습니다.</p>
-        <a href="{{ url_for('admin') }}" class="touch-btn">관리자 페이지로 이동</a>
+    <!-- 빠른 추가 버튼 -->
+    <a href="{{ url_for('quick_add') }}" class="touch-btn" style="background: linear-gradient(145deg, #e74c3c, #c0392b); border: 3px dashed white;">
+        <div>
+            <div style="font-size: 1.5em; margin-bottom: 10px;">➕</div>
+            <div style="font-size: 1em; font-weight: 600;">새로 추가하기</div>
+        </div>
+    </a>
+</div>
+
+{% if departments|length == 0 %}
+<div style="text-align: center; margin-top: 50px;">
+    <p style="font-size: 1.3em; color: #666; margin-bottom: 30px;">등록된 학과가 없습니다.</p>
+    <div style="display: flex; gap: 20px; justify-content: center;">
+        <a href="{{ url_for('quick_add') }}" class="touch-btn">빠른 추가</a>
+        <a href="{{ url_for('admin') }}" class="touch-btn secondary">관리자 페이지</a>
     </div>
-    {% endif %}
+</div>
+{% endif %}
+
+<!-- 디버깅 정보 (개발 중에만 표시) -->
+<div style="margin-top: 30px; text-align: center;">
+    <a href="/debug" style="color: #999; text-decoration: none; font-size: 0.9em;">🔍 디버그 정보 확인</a>
 </div>
 
 <style>
