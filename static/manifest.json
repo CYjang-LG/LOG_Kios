@@ -1,15 +1,24 @@
 {
-  "name": "의과학연구소 출입자 기록",
-  "short_name": "출입 기록",
-  "description": "인하대학교 의과학연구소 출입자 기록 관리",
+  "name": "의과학연구소 출입 기록",
+  "short_name": "LOG Kios",
+  "description": "연구실 출입자 등록 키오스크",
   "start_url": "/",
   "display": "standalone",
-  "orientation": "landscape",
-  "background_color": "#0D2B6B",
+  "background_color": "#f0f4fb",
   "theme_color": "#0D2B6B",
-  "lang": "ko",
+  "orientation": "landscape",
   "icons": [
-    { "src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "/static/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
