@@ -13,40 +13,47 @@
             <div>사용 로그 확인</div>
         </div>
     </a>
-    
+
     <a href="{{ url_for('users') }}" class="touch-btn success">
         <div>
             <div style="font-size: 2em; margin-bottom: 15px;">👥</div>
             <div>사용자 관리</div>
         </div>
     </a>
-    
+
     <a href="{{ url_for('departments') }}" class="touch-btn" style="background: linear-gradient(145deg, #9b59b6, #8e44ad);">
         <div>
             <div style="font-size: 2em; margin-bottom: 15px;">🏫</div>
             <div>학과 관리</div>
         </div>
     </a>
-    
+
     <a href="{{ url_for('professors') }}" class="touch-btn" style="background: linear-gradient(145deg, #3498db, #2980b9);">
         <div>
             <div style="font-size: 2em; margin-bottom: 15px;">👨‍🏫</div>
             <div>교수 관리</div>
         </div>
     </a>
-    
+
     <a href="{{ url_for('equipment_manage') }}" class="touch-btn secondary">
         <div>
             <div style="font-size: 2em; margin-bottom: 15px;">🔧</div>
             <div>장비 관리</div>
         </div>
     </a>
-    
+
     <a href="{{ url_for('export') }}" class="touch-btn" style="background: linear-gradient(145deg, #f39c12, #e67e22);">
         <div>
             <div style="font-size: 2em; margin-bottom: 15px;">📥</div>
             <div>데이터 내보내기</div>
         </div>
+    </a>
+</div>
+
+<!-- 로그아웃 -->
+<div style="margin-top: 30px; text-align: center;">
+    <a href="{{ url_for('admin_logout') }}" class="touch-btn danger" style="display: inline-flex; max-width: 300px;">
+        🚪 관리자 로그아웃
     </a>
 </div>
 {% endblock %}

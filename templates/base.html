@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}장비 사용 키오스크{% endblock %}</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Malgun Gothic', Arial, sans-serif;
@@ -43,26 +39,11 @@
             border-bottom: 3px solid #667eea;
         }
 
-        .header h1 {
-            color: #333;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
+        .header h1 { color: #333; font-size: 2.5em; margin-bottom: 10px; font-weight: 700; }
+        .header p  { color: #666; font-size: 1.2em; }
 
-        .header p {
-            color: #666;
-            font-size: 1.2em;
-        }
+        .content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
 
-        .content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        /* 터치 친화적 버튼 */
         .touch-btn {
             background: linear-gradient(145deg, #667eea, #764ba2);
             color: white;
@@ -81,30 +62,12 @@
             justify-content: center;
             text-decoration: none;
         }
+        .touch-btn:hover  { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4); }
+        .touch-btn:active { transform: translateY(0);    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3); }
+        .touch-btn.secondary { background: linear-gradient(145deg, #95a5a6, #7f8c8d); }
+        .touch-btn.danger    { background: linear-gradient(145deg, #e74c3c, #c0392b); }
+        .touch-btn.success   { background: linear-gradient(145deg, #2ecc71, #27ae60); }
 
-        .touch-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
-        }
-
-        .touch-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .touch-btn.secondary {
-            background: linear-gradient(145deg, #95a5a6, #7f8c8d);
-        }
-
-        .touch-btn.danger {
-            background: linear-gradient(145deg, #e74c3c, #c0392b);
-        }
-
-        .touch-btn.success {
-            background: linear-gradient(145deg, #2ecc71, #27ae60);
-        }
-
-        /* 플래시 메시지 */
         .flash-message {
             background: linear-gradient(145deg, #2ecc71, #27ae60);
             color: white;
@@ -115,60 +78,27 @@
             text-align: center;
             animation: slideDown 0.5s ease;
         }
+        .flash-message.error { background: linear-gradient(145deg, #e74c3c, #c0392b); }
 
         @keyframes slideDown {
             from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* 반응형 */
         @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-                margin: 10px;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .touch-btn {
-                font-size: 1.1em;
-                padding: 20px 30px;
-                margin: 10px;
-            }
+            .container { padding: 20px; margin: 10px; }
+            .header h1 { font-size: 2em; }
+            .touch-btn { font-size: 1.1em; padding: 20px 30px; margin: 10px; }
         }
 
-        /* 추가 스타일 */
-        .grid {
-            display: grid;
-            gap: 20px;
-        }
+        .grid   { display: grid; gap: 20px; }
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 
-        .grid-2 {
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        }
-
-        .grid-3 {
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        }
-
-        .grid-4 {
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        }
-
-        .back-btn {
-            position: fixed;
-            top: 30px;
-            left: 30px;
-            z-index: 1000;
-        }
-
+        .back-btn  { position: fixed; top: 30px; left: 30px; z-index: 1000; }
         .admin-btn {
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            z-index: 1000;
+            position: fixed; top: 30px; right: 30px; z-index: 1000;
             background: linear-gradient(145deg, #34495e, #2c3e50) !important;
             padding: 15px 25px !important;
             font-size: 1em !important;
@@ -176,12 +106,12 @@
     </style>
 </head>
 <body>
-    {% if request.endpoint != 'index' %}
+    {% if request.endpoint not in ['index', 'admin_login'] %}
     <a href="{{ url_for('index') }}" class="touch-btn back-btn">🏠 처음으로</a>
     {% endif %}
 
     {% if request.endpoint == 'index' %}
-    <a href="{{ url_for('admin') }}" class="touch-btn admin-btn">⚙️ 관리자</a>
+    <a href="{{ url_for('admin_login') }}" class="touch-btn admin-btn">⚙️ 관리자</a>
     {% endif %}
 
     <div class="container">
@@ -206,7 +136,7 @@
     </div>
 
     <script>
-        // 자동 새로고침 (10분 후)
+        // 자동 새로고침 (10분 후, 메인 화면만)
         setTimeout(function() {
             if (window.location.pathname === '/') {
                 window.location.reload();
@@ -215,14 +145,9 @@
 
         // 터치 피드백
         document.addEventListener('DOMContentLoaded', function() {
-            const buttons = document.querySelectorAll('.touch-btn');
-            buttons.forEach(button => {
-                button.addEventListener('touchstart', function() {
-                    this.style.transform = 'scale(0.95)';
-                });
-                button.addEventListener('touchend', function() {
-                    this.style.transform = 'scale(1)';
-                });
+            document.querySelectorAll('.touch-btn').forEach(function(btn) {
+                btn.addEventListener('touchstart', function() { this.style.transform = 'scale(0.95)'; });
+                btn.addEventListener('touchend',   function() { this.style.transform = 'scale(1)'; });
             });
         });
     </script>

@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-<!-- 과/학과 추가 폼 -->
+<!-- 학과 추가 폼 -->
 <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; margin-bottom: 30px;">
     <h3 style="color: #333; margin-bottom: 20px;">새 과/학과 추가</h3>
     <form method="post" action="{{ url_for('add_department') }}">
@@ -18,34 +18,30 @@
     </form>
 </div>
 
-<!-- 과/학과 목록 -->
+<!-- 학과 목록 -->
 <div style="background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden;">
     <div style="background: linear-gradient(145deg, #667eea, #764ba2); color: white; padding: 20px;">
         <h3 style="margin: 0;">등록된 학과 ({{ departments|length }}개)</h3>
     </div>
-    
     {% if departments|length > 0 %}
     <div style="max-height: 500px; overflow-y: auto;">
         {% for dept in departments %}
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #eee;">
             <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="font-size: 1.5em;">
-                    {% if dept.is_active %}🟢{% else %}🔴{% endif %}
-                </div>
+                <div style="font-size: 1.5em;">{% if dept.is_active %}🟢{% else %}🔴{% endif %}</div>
                 <div>
-                    <div style="font-size: 1.2em; font-weight: 600; color: #333;">
-                        🏫 {{ dept.name }}
-                    </div>
-                    <div style="color: #666; font-size: 0.9em;">
-                        {% if dept.is_active %}활성화됨{% else %}비활성화됨{% endif %}
-                    </div>
+                    <div style="font-size: 1.2em; font-weight: 600; color: #333;">🏫 {{ dept.name }}</div>
+                    <div style="color: #666; font-size: 0.9em;">{% if dept.is_active %}활성화됨{% else %}비활성화됨{% endif %}</div>
                 </div>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <a href="{{ url_for('toggle_department', department_id=dept.id) }}" 
-                   style="background: {% if dept.is_active %}#f39c12{% else %}#27ae60{% endif %}; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-size: 0.9em;">
-                    {% if dept.is_active %}⏸️ 비활성화{% else %}▶️ 활성화{% endif %}
-                </a>
+            <div>
+                <!-- 토글: POST 방식 -->
+                <form method="post" action="{{ url_for('toggle_department', department_id=dept.id) }}" style="display: inline;">
+                    <button type="submit"
+                            style="background: {% if dept.is_active %}#f39c12{% else %}#27ae60{% endif %}; color: white; padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9em;">
+                        {% if dept.is_active %}⏸️ 비활성화{% else %}▶️ 활성화{% endif %}
+                    </button>
+                </form>
             </div>
         </div>
         {% endfor %}

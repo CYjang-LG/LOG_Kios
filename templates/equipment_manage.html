@@ -23,29 +23,25 @@
     <div style="background: linear-gradient(145deg, #667eea, #764ba2); color: white; padding: 20px;">
         <h3 style="margin: 0;">등록된 장비 ({{ equipment|length }}개)</h3>
     </div>
-    
     {% if equipment|length > 0 %}
     <div style="max-height: 500px; overflow-y: auto;">
         {% for eq in equipment %}
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #eee;">
             <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="font-size: 1.5em;">
-                    {% if eq.is_active %}🟢{% else %}🔴{% endif %}
-                </div>
+                <div style="font-size: 1.5em;">{% if eq.is_active %}🟢{% else %}🔴{% endif %}</div>
                 <div>
-                    <div style="font-size: 1.2em; font-weight: 600; color: #333;">
-                        🔬 {{ eq.name }}
-                    </div>
-                    <div style="color: #666; font-size: 0.9em;">
-                        {% if eq.is_active %}활성화됨{% else %}비활성화됨{% endif %}
-                    </div>
+                    <div style="font-size: 1.2em; font-weight: 600; color: #333;">🔬 {{ eq.name }}</div>
+                    <div style="color: #666; font-size: 0.9em;">{% if eq.is_active %}활성화됨{% else %}비활성화됨{% endif %}</div>
                 </div>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <a href="{{ url_for('toggle_equipment', equipment_id=eq.id) }}" 
-                   style="background: {% if eq.is_active %}#f39c12{% else %}#27ae60{% endif %}; color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-size: 0.9em;">
-                    {% if eq.is_active %}⏸️ 비활성화{% else %}▶️ 활성화{% endif %}
-                </a>
+            <div>
+                <!-- 토글: POST 방식 -->
+                <form method="post" action="{{ url_for('toggle_equipment', equipment_id=eq.id) }}" style="display: inline;">
+                    <button type="submit"
+                            style="background: {% if eq.is_active %}#f39c12{% else %}#27ae60{% endif %}; color: white; padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9em;">
+                        {% if eq.is_active %}⏸️ 비활성화{% else %}▶️ 활성화{% endif %}
+                    </button>
+                </form>
             </div>
         </div>
         {% endfor %}

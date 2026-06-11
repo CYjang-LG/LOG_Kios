@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block header %}
+<h1>🔐 관리자 로그인</h1>
+<p>관리자 PIN을 입력하세요</p>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 0 auto;">
+    <div style="background: #f8f9fa; padding: 40px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <form method="post" action="{{ url_for('admin_login') }}">
+            <div style="margin-bottom: 30px; text-align: center;">
+                <div style="font-size: 4em; margin-bottom: 15px;">🔑</div>
+                <p style="color: #666; font-size: 1.1em;">관리자 전용 페이지입니다</p>
+            </div>
+
+            <!-- PIN 입력 -->
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #333; font-size: 1.1em;">PIN 번호</label>
+                <input
+                    type="password"
+                    name="pin"
+                    placeholder="PIN을 입력하세요"
+                    required
+                    autofocus
+                    inputmode="numeric"
+                    style="width: 100%; padding: 18px; border: 2px solid #ddd; border-radius: 10px; font-size: 1.4em; text-align: center; letter-spacing: 8px;"
+                >
+            </div>
+
+            <button type="submit" class="touch-btn" style="width: 100%; margin: 0;">
+                🔓 로그인
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{ url_for('index') }}" style="color: #666; text-decoration: none; font-size: 1em;">
+                ← 처음으로 돌아가기
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
