@@ -2,60 +2,77 @@
 {% block title %}방문 기록 등록{% endblock %}
 {% block extra_style %}
 <style>
-  .reg-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:30px 20px;
-    background: linear-gradient(160deg, #0D2B6B, #2456b8); }
-  .reg-card { background:#fff; border-radius:24px; padding:44px 40px; width:100%; max-width:680px;
-    box-shadow: 0 20px 60px rgba(13,43,107,0.25); }
-  .reg-stripe { height:5px; background:linear-gradient(90deg,var(--inha-blue),var(--inha-sky));
-    border-radius:28px 28px 0 0; margin:-44px -40px 36px; }
-  .reg-header { display:flex; align-items:center; gap:14px; margin-bottom:32px; }
-  .step-num { background:var(--inha-blue); color:#fff; width:36px; height:36px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.95rem; flex-shrink:0; }
-  .reg-header h1 { font-size:1.5rem; font-weight:700; color:var(--inha-blue); }
-  .info-summary { background:var(--inha-light); border-radius:var(--radius-sm); padding:16px 18px;
-    margin-bottom:28px; display:flex; gap:8px; flex-wrap:wrap; }
-  .info-tag { background:#fff; border:1.5px solid var(--border); border-radius:50px;
-    padding:6px 14px; font-size:.9rem; font-weight:600; color:var(--inha-blue); }
-  .form-group { margin-bottom:20px; }
-  .form-label { display:block; margin-bottom:8px; font-size:.88rem; font-weight:700;
-    color:var(--muted); letter-spacing:.03em; }
-  .form-label .req { color:var(--inha-blue); }
-  .form-control { width:100%; background:var(--surface-2); border:1.5px solid var(--border);
-    border-radius:var(--radius-sm); color:var(--text); font-size:1rem; padding:13px 15px;
-    outline:none; transition:border-color .2s; -webkit-appearance:none; }
-  .form-control:focus { border-color:var(--inha-blue); }
-  .time-row { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center; }
-  .time-sep { color:var(--muted); text-align:center; font-size:1.1rem; }
-  .purpose-btns { display:flex; flex-wrap:wrap; gap:10px; }
-  .purpose-chip { padding:11px 20px; border-radius:50px;
-    background:var(--surface-2); border:1.5px solid var(--border);
-    color:var(--muted); font-size:.95rem; cursor:pointer; transition:all .2s; font-weight:500; }
-  .purpose-chip.active { background:var(--inha-blue); border-color:var(--inha-blue); color:#fff; font-weight:700; }
-  .form-actions { display:flex; gap:14px; margin-top:28px; }
+  .step-page { min-height:calc(100vh - 56px); background:var(--bg); padding:32px 24px 40px; display:flex; flex-direction:column; align-items:center; }
+  .step-inner { width:100%; max-width:700px; }
+  .progress-bar { display:flex; align-items:center; gap:0; margin-bottom:32px; background:var(--white); border:1px solid var(--border); border-radius:50px; padding:8px 20px; width:fit-content; }
+  .prog-step { display:flex; align-items:center; gap:8px; font-size:.82rem; font-weight:600; color:var(--muted); padding:0 10px; }
+  .prog-step.active { color:var(--navy); }
+  .prog-step.done { color:var(--teal); }
+  .prog-dot { width:24px; height:24px; border-radius:50%; background:var(--border); color:var(--muted); display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; }
+  .prog-step.active .prog-dot { background:var(--navy); color:#fff; }
+  .prog-step.done .prog-dot { background:var(--teal); color:#fff; }
+  .prog-sep { width:20px; height:1px; background:var(--border); }
+  .section-header { margin-bottom:24px; }
+  .section-header h1 { font-size:1.5rem; font-weight:800; color:var(--navy); margin-bottom:4px; }
+  .section-header p { color:var(--muted); font-size:.9rem; }
+  /* 정보 요약 카드 */
+  .summary-card {
+    background: var(--light);
+    border: 1px solid rgba(13,43,107,0.12);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  }
+  .summary-label { font-size:.8rem; font-weight:700; color:var(--muted); margin-right:4px; }
+  .info-chip { background:var(--white); border:1.5px solid var(--border); border-radius:50px; padding:6px 14px; font-size:.88rem; font-weight:700; color:var(--navy); }
+  /* 폼 */
+  .form-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:28px 26px; margin-bottom:16px; }
+  .form-card-title { font-size:.82rem; font-weight:800; color:var(--muted); letter-spacing:.04em; margin-bottom:18px; text-transform:uppercase; }
+  .form-group { margin-bottom:18px; }
+  .form-label { display:block; margin-bottom:7px; font-size:.85rem; font-weight:700; color:var(--muted); }
+  .form-label .req { color:var(--navy); }
+  .form-control { width:100%; background:var(--bg); border:1.5px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-size:1rem; padding:12px 15px; outline:none; transition:border-color .2s; -webkit-appearance:none; font-family:inherit; }
+  .form-control:focus { border-color:var(--navy); background:var(--white); }
+  .time-row { display:grid; grid-template-columns:1fr 28px 1fr; gap:8px; align-items:center; }
+  .time-sep { color:var(--muted); text-align:center; font-weight:700; }
+  /* 목적 칩 */
+  .purpose-grid { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
+  .purpose-chip { padding:10px 18px; border-radius:50px; background:var(--bg); border:1.5px solid var(--border); color:var(--muted); font-size:.92rem; cursor:pointer; transition:all .2s; font-weight:600; font-family:inherit; }
+  .purpose-chip.active { background:var(--navy); border-color:var(--navy); color:#fff; }
+  /* 동반 인원 */
+  .extra-row { display:flex; align-items:center; gap:12px; }
+  .cnt-btn { width:42px; height:42px; border-radius:50%; background:var(--bg); border:1.5px solid var(--border); color:var(--navy); font-size:1.4rem; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; font-family:inherit; }
+  .cnt-btn:hover { background:var(--navy); color:#fff; border-color:var(--navy); }
+  .extra-count { width:64px; text-align:center; font-size:1.1rem; font-weight:700; }
+  /* 하단 액션 */
+  .form-actions { display:flex; gap:12px; margin-top:8px; }
   .form-actions .btn { flex:1; }
-  .extra-row { display:flex; align-items:center; gap:14px; }
-  .extra-count { width:80px; text-align:center; font-size:1.1rem; font-weight:700; }
-  .cnt-btn { width:40px; height:40px; border-radius:50%; background:var(--inha-light);
-    border:1.5px solid var(--border); color:var(--inha-blue); font-size:1.3rem;
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
-    transition:all .2s; flex-shrink:0; }
-  .cnt-btn:hover { background:var(--inha-blue); color:#fff; }
 </style>
 {% endblock %}
 {% block body %}
-<div class="reg-wrap">
-  <div class="reg-card">
-    <div class="reg-stripe"></div>
-    <div class="reg-header">
-      <div class="step-num">4</div>
-      <h1>방문 정보를 확인해 주세요</h1>
+<div class="step-page">
+  <div class="step-inner">
+    <div class="progress-bar">
+      <div class="prog-step done"><div class="prog-dot">✓</div> 소속</div>
+      <div class="prog-sep"></div>
+      <div class="prog-step done"><div class="prog-dot">✓</div> 부서</div>
+      <div class="prog-sep"></div>
+      <div class="prog-step done"><div class="prog-dot">✓</div> 이름</div>
+      <div class="prog-sep"></div>
+      <div class="prog-step active"><div class="prog-dot">4</div> 확인</div>
     </div>
 
-    <!-- 선택 요약 -->
-    <div class="info-summary">
-      {% if affiliation %}<span class="info-tag">{{ affiliation }}</span>{% endif %}
-      {% if department %}<span class="info-tag">{{ department }}</span>{% endif %}
-      {% if name %}<span class="info-tag">👤 {{ name }}</span>{% endif %}
+    <div class="section-header">
+      <h1>방문 정보를 확인해 주세요</h1>
+      <p>아래 정보를 확인하고 방문 목적과 시간을 입력해 주세요</p>
+    </div>
+
+    <div class="summary-card">
+      <span class="summary-label">선택 정보</span>
+      {% if affiliation %}<span class="info-chip">{{ affiliation }}</span>{% endif %}
+      {% if department %}<span class="info-chip">{{ department }}</span>{% endif %}
+      {% if name %}<span class="info-chip">👤 {{ name }}</span>{% endif %}
     </div>
 
     <form method="POST" action="{{ url_for('register') }}">
@@ -63,53 +80,50 @@
       <input type="hidden" name="department"  value="{{ department }}">
       <input type="hidden" name="name"        value="{{ name }}">
 
-      <!-- 날짜 -->
-      <div class="form-group">
-        <label class="form-label">날짜 <span class="req">*</span></label>
-        <input type="date" name="visit_date" class="form-control" value="{{ today }}" required>
-      </div>
-
-      <!-- 방문 시간 -->
-      <div class="form-group">
-        <label class="form-label">방문 시간 <span class="req">*</span></label>
-        <div class="time-row">
-          <input type="time" name="time_in"  class="form-control" value="{{ now_time }}" required>
-          <div class="time-sep">~</div>
-          <input type="time" name="time_out" class="form-control" value="18:00" required>
+      <div class="form-card">
+        <div class="form-card-title">📅 방문 일시</div>
+        <div class="form-group">
+          <label class="form-label">날짜 <span class="req">*</span></label>
+          <input type="date" name="visit_date" class="form-control" value="{{ today }}" required>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">방문 시간 <span class="req">*</span></label>
+          <div class="time-row">
+            <input type="time" name="time_in"  class="form-control" value="{{ now_time }}" required>
+            <div class="time-sep">~</div>
+            <input type="time" name="time_out" class="form-control" value="18:00" required>
+          </div>
         </div>
       </div>
 
-      <!-- 동반 인원 -->
-      <div class="form-group">
-        <label class="form-label">동반 인원 (본인 제외)</label>
-        <div class="extra-row">
-          <button type="button" class="cnt-btn" onclick="changeCount(-1)">−</button>
-          <input type="number" name="extra_count" id="extraCount"
-                 class="form-control extra-count" value="0" min="0" max="20" readonly>
-          <button type="button" class="cnt-btn" onclick="changeCount(1)">+</button>
-          <span style="color:var(--muted);font-size:.9rem;">명</span>
+      <div class="form-card">
+        <div class="form-card-title">🎯 방문 목적</div>
+        <div class="form-group">
+          <div class="purpose-grid">
+            <button type="button" class="purpose-chip" data-val="장비사용">🖥 장비사용</button>
+            <button type="button" class="purpose-chip" data-val="납품/수리">🔧 납품/수리</button>
+            <button type="button" class="purpose-chip" data-val="업무협의">💼 업무협의</button>
+            <button type="button" class="purpose-chip" data-val="상시출입">🔑 상시출입</button>
+            <button type="button" class="purpose-chip" data-val="__direct__">✏ 직접입력</button>
+          </div>
+          <input type="text" name="purpose" id="purposeInput" class="form-control" placeholder="방문 목적을 선택하거나 직접 입력" required autocomplete="off">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">동반 인원 (본인 제외)</label>
+          <div class="extra-row">
+            <button type="button" class="cnt-btn" onclick="changeCount(-1)">−</button>
+            <input type="number" name="extra_count" id="extraCount" class="form-control extra-count" value="0" min="0" max="20" readonly>
+            <button type="button" class="cnt-btn" onclick="changeCount(1)">+</button>
+            <span style="color:var(--muted);font-size:.9rem;">명</span>
+          </div>
         </div>
       </div>
 
-      <!-- 방문 목적 -->
-      <div class="form-group">
-        <label class="form-label">방문 목적 <span class="req">*</span></label>
-        <div class="purpose-btns" style="margin-bottom:10px;">
-          <button type="button" class="purpose-chip" data-val="장비사용">🖥 장비사용</button>
-          <button type="button" class="purpose-chip" data-val="납품/수리">🔧 납품/수리</button>
-          <button type="button" class="purpose-chip" data-val="업무협의">💼 업무협의</button>
-          <button type="button" class="purpose-chip" data-val="상시출입">🔑 상시출입</button>
-          <button type="button" class="purpose-chip" data-val="__direct__">✏ 직접입력</button>
+      <div class="form-card">
+        <div class="form-card-title">📝 기타</div>
+        <div class="form-group" style="margin-bottom:0">
+          <textarea name="note" class="form-control" rows="2" placeholder="추가 메모가 있으면 입력하세요 (선택)"></textarea>
         </div>
-        <input type="text" name="purpose" id="purposeInput" class="form-control"
-               placeholder="방문 목적을 선택하거나 직접 입력" required autocomplete="off">
-      </div>
-
-      <!-- 기타 -->
-      <div class="form-group">
-        <label class="form-label">기타 (선택)</label>
-        <textarea name="note" class="form-control" rows="2"
-                  placeholder="추가 메모가 있으면 입력하세요"></textarea>
       </div>
 
       <div class="form-actions">
@@ -138,8 +152,7 @@
   });
   function changeCount(d) {
     const el = document.getElementById('extraCount');
-    const v = Math.max(0, Math.min(20, parseInt(el.value||0) + d));
-    el.value = v;
+    el.value = Math.max(0, Math.min(20, parseInt(el.value||0) + d));
   }
 </script>
 {% endblock %}

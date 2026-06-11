@@ -2,93 +2,151 @@
 {% block title %}의과학연구소 출입자 기록{% endblock %}
 {% block extra_style %}
 <style>
-  .kiosk-wrap {
-    min-height: 100vh;
+  .hero {
+    min-height: calc(100vh - 56px);
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    padding: 40px 20px;
-    background: linear-gradient(160deg, #0D2B6B 0%, #1a3f8f 50%, #2456b8 100%);
+    padding: 40px 24px;
+    background: var(--white);
   }
-  .kiosk-logo {
+  .hero-top {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--light); color: var(--navy);
+    border-radius: 50px; padding: 8px 18px;
+    font-size: .85rem; font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: .02em;
+    border: 1px solid rgba(13,43,107,0.12);
+  }
+  .hero-title {
+    font-size: 2.4rem; font-weight: 800;
+    color: var(--navy); line-height: 1.25;
     margin-bottom: 10px;
   }
-  .kiosk-logo svg { width: 64px; height: 64px; }
-  .kiosk-card {
-    background: rgba(255,255,255,0.97);
-    border-radius: 28px;
-    padding: 56px 52px;
-    text-align: center;
-    max-width: 580px; width: 100%;
-    box-shadow: 0 24px 80px rgba(13,43,107,0.35);
+  .hero-sub {
+    color: var(--muted); font-size: 1rem;
+    margin-bottom: 28px;
   }
-  .kiosk-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--inha-light);
-    color: var(--inha-blue);
-    border-radius: 50px;
-    padding: 8px 20px;
-    font-size: .88rem; font-weight: 600;
-    margin-bottom: 24px;
-    letter-spacing: .03em;
+  .hero-clock {
+    font-size: 3.2rem; font-weight: 700;
+    color: var(--navy); letter-spacing: .06em;
+    font-variant-numeric: tabular-nums;
   }
-  .kiosk-title {
-    font-size: 2rem; font-weight: 800;
-    color: var(--inha-blue);
-    margin-bottom: 8px;
-    line-height: 1.3;
+  .hero-date {
+    color: var(--muted); font-size: .95rem;
+    margin-top: 6px;
   }
-  .kiosk-sub { color: var(--muted); font-size: 1rem; margin-bottom: 36px; }
-  .kiosk-clock {
-    font-size: 2.6rem; font-weight: 700;
-    color: var(--inha-blue); letter-spacing: .04em;
-    margin-bottom: 4px;
-  }
-  .kiosk-date {
-    color: var(--muted); font-size: 1rem; margin-bottom: 40px;
-  }
-  .enter-btn {
-    width: 100%;
-    background: var(--inha-blue);
+  /* 큰 시작 버튼 */
+  .start-btn {
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    width: 100%; max-width: 480px;
+    background: var(--navy);
     color: #fff; border: none; cursor: pointer;
-    font-size: 1.35rem; font-weight: 700;
-    padding: 26px;
+    font-size: 1.3rem; font-weight: 700;
+    padding: 28px 40px;
     border-radius: var(--radius);
-    box-shadow: 0 8px 32px rgba(13,43,107,0.30);
+    box-shadow: var(--shadow-md);
     transition: all .2s;
-    animation: pulse 2.5s ease-in-out infinite;
+    position: relative; overflow: hidden;
   }
-  .enter-btn:hover { background: var(--inha-blue-2); transform: translateY(-2px); }
-  .enter-btn:active { transform: translateY(0); }
-  @keyframes pulse {
-    0%,100% { box-shadow: 0 8px 32px rgba(13,43,107,0.30); }
-    50%      { box-shadow: 0 8px 52px rgba(13,43,107,0.55); }
+  .start-btn::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%);
   }
-  .inha-stripe {
-    height: 5px;
-    background: linear-gradient(90deg, var(--inha-blue), var(--inha-sky));
-    border-radius: 5px 5px 0 0;
-    margin: -56px -52px 40px;
-    border-radius: 28px 28px 0 0;
+  .start-btn:hover { background: var(--navy2); transform: translateY(-2px); box-shadow: 0 10px 40px rgba(13,43,107,0.22); }
+  .start-btn:active { transform: translateY(0); }
+  .start-icon {
+    width: 48px; height: 48px; background: rgba(255,255,255,0.15);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  /* 하단 quick icon row */
+  .quick-row {
+    display: flex; gap: 32px;
+    margin-top: 40px;
+    justify-content: center;
+  }
+  .quick-item {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: var(--muted); font-size: .8rem;
+  }
+  .quick-icon {
+    width: 52px; height: 52px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--teal);
+  }
+  /* 하단 구분선 */
+  .divider-bar {
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--navy), var(--teal));
+    position: fixed; bottom: 0; left: 0;
   }
 </style>
 {% endblock %}
 {% block body %}
-<div class="kiosk-wrap">
-  <div class="kiosk-card">
-    <div class="inha-stripe"></div>
-    <div class="kiosk-badge">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      인하대학교 의과학연구소
+<div class="hero">
+  <div class="hero-top">
+    <div class="hero-badge">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      출입자 등록 시스템
     </div>
-    <h1 class="kiosk-title">출입자 기록</h1>
-    <p class="kiosk-sub">방문 전 출입 기록을 등록해 주세요</p>
-    <div class="kiosk-clock" id="clock">00:00:00</div>
-    <div class="kiosk-date" id="kdate">-</div>
-    <a href="{{ url_for('step_affiliation') }}">
-      <button class="enter-btn">✍ &nbsp; 방문 기록 등록하기</button>
-    </a>
+    <h1 class="hero-title">방문 기록을 등록해 주세요</h1>
+    <p class="hero-sub">연구소 출입 전 아래 버튼을 눌러 방문 정보를 입력해 주세요</p>
+    <div class="hero-clock" id="clock">--:--:--</div>
+    <div class="hero-date" id="kdate"></div>
+  </div>
+
+  <a href="{{ url_for('step_affiliation') }}" style="width:100%;max-width:480px;display:block;">
+    <button class="start-btn">
+      <div class="start-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </div>
+      방문 기록 등록하기
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </a>
+
+  <div class="quick-row">
+    <div class="quick-item">
+      <div class="quick-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      소속 선택
+    </div>
+    <div class="quick-item">
+      <div class="quick-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h.01M14 18h.01M18 14h.01M18 18h.01"/></svg>
+      </div>
+      부서 선택
+    </div>
+    <div class="quick-item">
+      <div class="quick-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      이름 선택
+    </div>
+    <div class="quick-item">
+      <div class="quick-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      </div>
+      등록 완료
+    </div>
   </div>
 </div>
+<div class="divider-bar"></div>
 {% endblock %}
 {% block script %}
 <script>

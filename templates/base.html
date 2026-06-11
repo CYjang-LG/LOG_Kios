@@ -9,89 +9,119 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="출입 기록">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      /* 인하대 시그니처 컬러 */
-      --inha-blue:    #0D2B6B;
-      --inha-blue-2:  #1a3f8f;
-      --inha-blue-3:  #2456b8;
-      --inha-sky:     #4a90d9;
-      --inha-light:   #e8eef8;
-
-      --bg:        #f0f4fb;
-      --surface:   #ffffff;
-      --surface-2: #f5f8ff;
-      --border:    rgba(13,43,107,0.12);
-      --text:      #0d1b3e;
-      --muted:     #5a6a8a;
-      --radius:    16px;
-      --radius-sm: 10px;
-      --shadow:    0 4px 20px rgba(13,43,107,0.10);
-      --shadow-lg: 0 8px 40px rgba(13,43,107,0.15);
+      --navy:   #0D2B6B;
+      --navy2:  #1a3f8f;
+      --teal:   #3a9fa5;
+      --teal2:  #2d8a90;
+      --light:  #eef3fb;
+      --bg:     #f7f9fc;
+      --white:  #ffffff;
+      --border: rgba(13,43,107,0.10);
+      --text:   #1a2540;
+      --muted:  #6b7a99;
+      --radius: 18px;
+      --radius-sm: 12px;
+      --shadow: 0 2px 12px rgba(13,43,107,0.08);
+      --shadow-md: 0 6px 28px rgba(13,43,107,0.12);
     }
     html, body { height: 100%; }
     body {
-      font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+      font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
     a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; }
 
+    /* 상단 헤더 바 */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 56px;
+      background: var(--navy);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+    }
+    .top-bar-logo {
+      display: flex; align-items: center; gap: 10px;
+      color: #fff; font-size: .95rem; font-weight: 700; letter-spacing: .02em;
+    }
+    .top-bar-logo svg { opacity: .9; }
+    .top-bar-right { display: flex; align-items: center; gap: 12px; }
+    .top-bar-time { color: rgba(255,255,255,0.75); font-size: .88rem; }
+    .admin-btn {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.85);
+      padding: 7px 14px; border-radius: 8px;
+      font-size: .8rem; cursor: pointer;
+      transition: all .2s;
+    }
+    .admin-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
+
+    /* 메인 컨텐츠 영역 */
+    .page-wrap {
+      padding-top: 56px;
+      min-height: 100vh;
+    }
+
+    /* 공통 버튼 */
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       border: none; cursor: pointer;
       border-radius: var(--radius-sm);
-      font-size: 1rem; font-weight: 600;
-      padding: 14px 28px;
-      transition: all .2s ease;
+      font-size: .95rem; font-weight: 600;
+      padding: 12px 24px;
+      transition: all .18s ease;
+      font-family: inherit;
     }
-    .btn-primary {
-      background: var(--inha-blue);
-      color: #fff;
-      box-shadow: 0 4px 16px rgba(13,43,107,0.25);
-    }
-    .btn-primary:hover  { background: var(--inha-blue-2); transform: translateY(-1px); }
+    .btn-primary { background: var(--navy); color: #fff; }
+    .btn-primary:hover { background: var(--navy2); transform: translateY(-1px); }
     .btn-primary:active { transform: translateY(0); }
-    .btn-secondary {
-      background: var(--surface); color: var(--muted);
-      border: 1.5px solid var(--border);
-    }
-    .btn-secondary:hover { background: var(--surface-2); color: var(--text); }
-    .btn-danger  { background: #dc2626; color: #fff; }
-    .btn-danger:hover  { background: #b91c1c; }
+    .btn-secondary { background: var(--white); color: var(--muted); border: 1.5px solid var(--border); }
+    .btn-secondary:hover { background: var(--light); color: var(--navy); }
+    .btn-teal { background: var(--teal); color: #fff; }
+    .btn-teal:hover { background: var(--teal2); }
+    .btn-lg { padding: 16px 32px; font-size: 1.05rem; border-radius: var(--radius); min-height: 60px; }
+    .btn-danger { background: #dc2626; color: #fff; }
+    .btn-danger:hover { background: #b91c1c; }
     .btn-success { background: #16a34a; color: #fff; }
-    .btn-success:hover { background: #15803d; }
-    .btn-lg { padding: 20px 40px; font-size: 1.2rem; border-radius: var(--radius); min-height: 70px; }
 
-    .flash { padding: 14px 20px; border-radius: var(--radius-sm); margin-bottom: 20px; font-weight: 500; }
+    /* 플래시 메시지 */
+    .flash { padding: 14px 20px; border-radius: var(--radius-sm); margin-bottom: 16px; font-weight: 500; font-size: .95rem; }
     .flash-success { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
     .flash-error   { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
-
-    .admin-btn {
-      position: fixed; top: 20px; right: 20px; z-index: 999;
-      background: rgba(13,43,107,0.08);
-      border: 1px solid var(--border);
-      color: var(--muted); padding: 10px 18px;
-      border-radius: var(--radius-sm);
-      font-size: .85rem; cursor: pointer;
-      transition: all .2s;
-    }
-    .admin-btn:hover { background: var(--inha-blue); color: #fff; }
   </style>
   {% block extra_style %}{% endblock %}
 </head>
 <body>
-  {% if request.endpoint == 'index' %}
-  <a href="{{ url_for('admin_login') }}" class="admin-btn">⚙ 관리자</a>
-  {% endif %}
+  <!-- 상단 네비게이션 바 -->
+  <header class="top-bar">
+    <div class="top-bar-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      인하대학교 의과학연구소
+    </div>
+    <div class="top-bar-right">
+      <span class="top-bar-time" id="topClock"></span>
+      {% if request.endpoint == 'index' %}
+      <a href="{{ url_for('admin_login') }}">
+        <button class="admin-btn">⚙ 관리자</button>
+      </a>
+      {% endif %}
+    </div>
+  </header>
 
   {% with messages = get_flashed_messages(with_categories=True) %}
     {% if messages %}
-      <div style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;width:90%;max-width:500px;">
+      <div style="position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:9999;width:90%;max-width:500px;">
         {% for cat, msg in messages %}
           <div class="flash flash-{{ 'error' if cat=='error' else 'success' }}">{{ msg }}</div>
         {% endfor %}
@@ -99,13 +129,24 @@
     {% endif %}
   {% endwith %}
 
-  {% block body %}{% endblock %}
+  <div class="page-wrap">
+    {% block body %}{% endblock %}
+  </div>
 
   <script>
     if ('serviceWorker' in navigator)
       window.addEventListener('load', () => navigator.serviceWorker.register('/static/sw.js').catch(()=>{}));
+    // 상단 시계
+    function tickTop() {
+      const n = new Date();
+      const p = x => String(x).padStart(2,'0');
+      const el = document.getElementById('topClock');
+      if (el) el.textContent = `${p(n.getHours())}:${p(n.getMinutes())}`;
+    }
+    tickTop(); setInterval(tickTop, 1000);
+    // 터치 피드백
     document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.btn').forEach(btn => {
+      document.querySelectorAll('.btn, .card-btn, .choice-card').forEach(btn => {
         btn.addEventListener('touchstart', () => btn.style.opacity='.75', {passive:true});
         btn.addEventListener('touchend',   () => btn.style.opacity='1');
       });

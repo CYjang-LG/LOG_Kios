@@ -2,60 +2,88 @@
 {% block title %}이름 선택{% endblock %}
 {% block extra_style %}
 <style>
-  .step-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:30px 20px;
-    background: linear-gradient(160deg, #0D2B6B, #2456b8); }
-  .step-card { background:#fff; border-radius:24px; padding:44px 40px; width:100%; max-width:700px;
-    box-shadow: 0 20px 60px rgba(13,43,107,0.25); }
-  .step-header { display:flex; align-items:center; gap:14px; margin-bottom:8px; }
-  .step-num { background:var(--inha-blue); color:#fff; width:36px; height:36px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.95rem; flex-shrink:0; }
-  .step-header h1 { font-size:1.5rem; font-weight:700; color:var(--inha-blue); }
-  .breadcrumb { display:flex; gap:6px; align-items:center; margin-bottom:24px; flex-wrap:wrap; }
-  .bc-tag { background:var(--inha-light); color:var(--inha-blue); border-radius:50px;
-    padding:5px 14px; font-size:.85rem; font-weight:600; }
-  .bc-sep { color:var(--muted); }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:14px; margin-bottom:24px; }
-  .choice-btn { background:var(--surface-2); border:2px solid var(--border); border-radius:var(--radius);
-    padding:22px 16px; font-size:1.05rem; font-weight:600; color:var(--text);
-    cursor:pointer; transition:all .2s; text-align:center; }
-  .choice-btn:hover { border-color:var(--inha-blue); background:var(--inha-light); color:var(--inha-blue); transform:translateY(-2px); box-shadow:var(--shadow); }
-  .divider { border:none; border-top:1px solid var(--border); margin:20px 0; }
-  .custom-row { display:flex; gap:12px; }
-  .custom-input { flex:1; border:1.5px solid var(--border); border-radius:var(--radius-sm);
-    padding:14px 16px; font-size:1rem; color:var(--text); background:var(--surface-2); outline:none; }
-  .custom-input:focus { border-color:var(--inha-blue); }
-  .back-row { margin-top:12px; }
+  .step-page { min-height:calc(100vh - 56px); background:var(--bg); padding:32px 24px 40px; display:flex; flex-direction:column; align-items:center; }
+  .step-inner { width:100%; max-width:760px; }
+  .progress-bar { display:flex; align-items:center; gap:0; margin-bottom:32px; background:var(--white); border:1px solid var(--border); border-radius:50px; padding:8px 20px; width:fit-content; }
+  .prog-step { display:flex; align-items:center; gap:8px; font-size:.82rem; font-weight:600; color:var(--muted); padding:0 10px; }
+  .prog-step.active { color:var(--navy); }
+  .prog-step.done { color:var(--teal); }
+  .prog-dot { width:24px; height:24px; border-radius:50%; background:var(--border); color:var(--muted); display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; }
+  .prog-step.active .prog-dot { background:var(--navy); color:#fff; }
+  .prog-step.done .prog-dot { background:var(--teal); color:#fff; }
+  .prog-sep { width:20px; height:1px; background:var(--border); }
+  .section-header { margin-bottom:20px; }
+  .section-header h1 { font-size:1.5rem; font-weight:800; color:var(--navy); margin-bottom:4px; }
+  .section-header p { color:var(--muted); font-size:.9rem; }
+  .breadcrumb { display:flex; align-items:center; gap:8px; margin-bottom:22px; flex-wrap:wrap; }
+  .bc-chip { display:inline-flex; align-items:center; gap:5px; background:var(--light); color:var(--navy); border:1px solid rgba(13,43,107,0.15); border-radius:50px; padding:5px 12px; font-size:.82rem; font-weight:700; }
+  .bc-arrow { color:var(--muted); font-size:.85rem; }
+  .card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:12px; margin-bottom:28px; }
+  .choice-card { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:24px 12px 18px; display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer; transition:all .18s ease; text-align:center; }
+  .choice-card:hover { border-color:var(--navy); background:var(--light); transform:translateY(-3px); box-shadow:var(--shadow-md); }
+  .choice-card:active { transform:translateY(0); }
+  .card-icon { width:48px; height:48px; background:var(--light); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--navy); }
+  .card-label { font-size:1rem; font-weight:700; color:var(--text); }
+  .custom-box { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:20px 22px; margin-bottom:16px; }
+  .custom-box-label { font-size:.82rem; font-weight:700; color:var(--muted); margin-bottom:10px; letter-spacing:.03em; }
+  .custom-row { display:flex; gap:10px; }
+  .custom-input { flex:1; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:13px 15px; font-size:1rem; color:var(--text); background:var(--bg); outline:none; font-family:inherit; transition:border-color .2s; }
+  .custom-input:focus { border-color:var(--navy); background:var(--white); }
+  .back-btn { display:flex; align-items:center; gap:6px; color:var(--muted); font-size:.9rem; font-weight:600; cursor:pointer; background:none; border:none; padding:8px 0; transition:color .2s; }
+  .back-btn:hover { color:var(--navy); }
 </style>
 {% endblock %}
 {% block body %}
-<div class="step-wrap">
-  <div class="step-card">
-    <div class="step-header">
-      <div class="step-num">3</div>
+<div class="step-page">
+  <div class="step-inner">
+    <div class="progress-bar">
+      <div class="prog-step done"><div class="prog-dot">✓</div> 소속</div>
+      <div class="prog-sep"></div>
+      <div class="prog-step done"><div class="prog-dot">✓</div> 부서</div>
+      <div class="prog-sep"></div>
+      <div class="prog-step active"><div class="prog-dot">3</div> 이름</div>
+      <div class="prog-sep"></div>
+      <div class="prog-step"><div class="prog-dot">4</div> 확인</div>
+    </div>
+    <div class="section-header">
       <h1>이름을 선택해 주세요</h1>
+      <p>본인 이름을 선택하거나 직접 입력하세요</p>
     </div>
     <div class="breadcrumb">
-      <span class="bc-tag">{{ dept.aff_name }}</span>
-      <span class="bc-sep">›</span>
-      <span class="bc-tag">{{ dept.name }}</span>
+      <div class="bc-chip">{{ dept.aff_name }}</div>
+      <span class="bc-arrow">›</span>
+      <div class="bc-chip">{{ dept.name }}</div>
     </div>
-    <div class="grid">
+    <div class="card-grid">
       {% for m in members %}
-        <a href="{{ url_for('step_form', aff_id=dept.affiliation_id, dept_id=dept.id, member_id=m.id) }}">
-          <button class="choice-btn">{{ m.name }}</button>
-        </a>
+      <a href="{{ url_for('step_form', aff_id=dept.affiliation_id, dept_id=dept.id, member_id=m.id) }}">
+        <div class="choice-card">
+          <div class="card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="card-label">{{ m.name }}</div>
+        </div>
+      </a>
       {% else %}
-        <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:20px 0;">등록된 인원이 없습니다.<br>아래에서 직접 입력해 주세요.</p>
+      <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:32px 0;">등록된 인원이 없습니다.<br>직접 입력해 주세요.</p>
       {% endfor %}
     </div>
-    <hr class="divider">
-    <div class="custom-row">
-      <input class="custom-input" id="customName" placeholder="직접 입력 (이름)" autocomplete="off">
-      <button class="btn btn-primary" onclick="goCustom()">다음 →</button>
+    <div class="custom-box">
+      <div class="custom-box-label">✏ 직접 입력</div>
+      <div class="custom-row">
+        <input class="custom-input" id="customName" placeholder="이름을 입력하세요" autocomplete="off">
+        <button class="btn btn-primary" onclick="goCustom()">다음 →</button>
+      </div>
     </div>
-    <div class="back-row">
-      <a href="{{ url_for('step_department', aff_id=dept.affiliation_id) }}" class="btn btn-secondary" style="width:100%;margin-top:8px;">← 부서/연구실로</a>
-    </div>
+    <a href="{{ url_for('step_department', aff_id=dept.affiliation_id) }}">
+      <button class="back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        부서 선택으로 돌아가기
+      </button>
+    </a>
   </div>
 </div>
 {% endblock %}
