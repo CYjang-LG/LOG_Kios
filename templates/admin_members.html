@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}사전 등록 관리{% endblock %}
+{% block extra_style %}
+<style>
+  body { user-select:text; }
+  .wrap { max-width:1100px; margin:0 auto; padding:32px 20px; }
+  h1 { font-size:1.5rem; font-weight:700; color:var(--inha-blue); margin-bottom:24px; }
+  .cols { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
+  @media(max-width:768px){ .cols { grid-template-columns:1fr; } }
+  .col-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+  .col-head { background:var(--inha-blue); color:#fff; padding:14px 18px; font-weight:700; font-size:.95rem; }
+  .col-body { padding:14px; }
+  .item-row { display:flex; align-items:center; justify-content:space-between;
+    padding:10px 12px; border-radius:var(--radius-sm); margin-bottom:6px;
+    background:var(--surface-2); border:1px solid var(--border); }
+  .item-row.active { background:var(--inha-light); border-color:var(--inha-blue); }
+  .item-name { font-weight:600; font-size:.95rem; }
+  .item-actions { display:flex; gap:6px; }
+  .add-form { display:flex; gap:8px; margin-top:12px; }
+  .add-input { flex:1; border:1.5px solid var(--border); border-radius:var(--radius-sm);
+    padding:10px 12px; font-size:.9rem; color:var(--text); background:var(--surface-2); outline:none; }
+  .add-input:focus { border-color:var(--inha-blue); }
+  .admin-nav { display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap; }
+  .btn-xs { padding:7px 14px; font-size:.8rem; border-radius:var(--radius-sm); }
+  .select-link { color:var(--inha-blue); font-weight:600; font-size:.85rem; padding:6px 10px;
+    border-radius:var(--radius-sm); background:var(--inha-light); border:none; cursor:pointer;
+    text-decoration:none; transition:all .15s; }
+  .select-link:hover { background:var(--inha-blue); color:#fff; }
+</style>
+{% endblock %}
+{% block body %}
+<div class="wrap">
+  <div class="admin-nav">
+    <a href="{{ url_for('admin') }}" class="btn btn-secondary btn-xs">← 기록 관리</a>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary btn-xs">🏠 메인</a>
+    <a href="{{ url_for('admin_logout') }}" class="btn btn-secondary btn-xs">로그아웃</a>
+  </div>
+  <h1>👥 사전 등록 관리</h1>
+  <div class="cols">
+    <!-- 소속 -->
+    <div class="col-card">
+      <div class="col-head">1단계 · 소속</div>
+      <div class="col-body">
+        {% for a in affiliations %}
+        <div class="item-row {% if sel_aff and sel_aff.id==a.id %}active{% endif %}">
+          <span class="item-name">{{ a.name }}</span>
+          <div class="item-actions">
+            <a href="{{ url_for('admin_members', aff_id=a.id) }}" class="select-link">선택</a>
+            <form method="POST" action="{{ url_for('del_affiliation', aid=a.id) }}" style="display:inline;"
+                  onsubmit="return confirm('소속과 하위 모든 데이터가 삭제됩니다.')">
+              <button class="btn btn-danger btn-xs">삭제</button>
+            </form>
+          </div>
+        </div>
+        {% else %}
+        <p style="color:var(--muted);font-size:.9rem;padding:10px 0;">등록된 소속이 없습니다.</p>
+        {% endfor %}
+        <form method="POST" action="{{ url_for('add_affiliation') }}" class="add-form">
+          <input name="name" class="add-input" placeholder="소속명 추가" required autocomplete="off">
+          <button class="btn btn-primary btn-xs">추가</button>
+        </form>
+      </div>
+    </div>
+    <!-- 부서 -->
+    <div class="col-card">
+      <div class="col-head">2단계 · 부서/연구실</div>
+      <div class="col-body">
+        {% if sel_aff %}
+          {% for d in departments %}
+          <div class="item-row {% if sel_dept and sel_dept.id==d.id %}active{% endif %}">
+            <span class="item-name">{{ d.name }}</span>
+            <div class="item-actions">
+              <a href="{{ url_for('admin_members', aff_id=sel_aff.id, dept_id=d.id) }}" class="select-link">선택</a>
+              <form method="POST" action="{{ url_for('del_department', did=d.id) }}" style="display:inline;"
+                    onsubmit="return confirm('부서와 하위 인원이 모두 삭제됩니다.')">
+                <button class="btn btn-danger btn-xs">삭제</button>
+              </form>
+            </div>
+          </div>
+          {% else %}
+          <p style="color:var(--muted);font-size:.9rem;padding:10px 0;">등록된 부서가 없습니다.</p>
+          {% endfor %}
+          <form method="POST" action="{{ url_for('add_department') }}" class="add-form">
+            <input type="hidden" name="aff_id" value="{{ sel_aff.id }}">
+            <input name="name" class="add-input" placeholder="부서/연구실명 추가" required autocomplete="off">
+            <button class="btn btn-primary btn-xs">추가</button>
+          </form>
+        {% else %}
+          <p style="color:var(--muted);font-size:.9rem;padding:10px 0;">← 소속을 먼저 선택하세요.</p>
+        {% endif %}
+      </div>
+    </div>
+    <!-- 인원 -->
+    <div class="col-card">
+      <div class="col-head">3단계 · 인원</div>
+      <div class="col-body">
+        {% if sel_dept %}
+          {% for m in members %}
+          <div class="item-row">
+            <span class="item-name">{{ m.name }}</span>
+            <form method="POST" action="{{ url_for('del_member', mid=m.id) }}" style="display:inline;"
+                  onsubmit="return confirm('삭제할까요?')">
+              <button class="btn btn-danger btn-xs">삭제</button>
+            </form>
+          </div>
+          {% else %}
+          <p style="color:var(--muted);font-size:.9rem;padding:10px 0;">등록된 인원이 없습니다.</p>
+          {% endfor %}
+          <form method="POST" action="{{ url_for('add_member') }}" class="add-form">
+            <input type="hidden" name="dept_id" value="{{ sel_dept.id }}">
+            <input type="hidden" name="aff_id"  value="{{ sel_aff.id if sel_aff else '' }}">
+            <input name="name" class="add-input" placeholder="이름 추가" required autocomplete="off">
+            <button class="btn btn-primary btn-xs">추가</button>
+          </form>
+        {% else %}
+          <p style="color:var(--muted);font-size:.9rem;padding:10px 0;">← 부서/연구실을 먼저 선택하세요.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

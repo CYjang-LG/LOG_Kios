@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}이름 선택{% endblock %}
+{% block extra_style %}
+<style>
+  .step-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:30px 20px;
+    background: linear-gradient(160deg, #0D2B6B, #2456b8); }
+  .step-card { background:#fff; border-radius:24px; padding:44px 40px; width:100%; max-width:700px;
+    box-shadow: 0 20px 60px rgba(13,43,107,0.25); }
+  .step-header { display:flex; align-items:center; gap:14px; margin-bottom:8px; }
+  .step-num { background:var(--inha-blue); color:#fff; width:36px; height:36px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.95rem; flex-shrink:0; }
+  .step-header h1 { font-size:1.5rem; font-weight:700; color:var(--inha-blue); }
+  .breadcrumb { display:flex; gap:6px; align-items:center; margin-bottom:24px; flex-wrap:wrap; }
+  .bc-tag { background:var(--inha-light); color:var(--inha-blue); border-radius:50px;
+    padding:5px 14px; font-size:.85rem; font-weight:600; }
+  .bc-sep { color:var(--muted); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:14px; margin-bottom:24px; }
+  .choice-btn { background:var(--surface-2); border:2px solid var(--border); border-radius:var(--radius);
+    padding:22px 16px; font-size:1.05rem; font-weight:600; color:var(--text);
+    cursor:pointer; transition:all .2s; text-align:center; }
+  .choice-btn:hover { border-color:var(--inha-blue); background:var(--inha-light); color:var(--inha-blue); transform:translateY(-2px); box-shadow:var(--shadow); }
+  .divider { border:none; border-top:1px solid var(--border); margin:20px 0; }
+  .custom-row { display:flex; gap:12px; }
+  .custom-input { flex:1; border:1.5px solid var(--border); border-radius:var(--radius-sm);
+    padding:14px 16px; font-size:1rem; color:var(--text); background:var(--surface-2); outline:none; }
+  .custom-input:focus { border-color:var(--inha-blue); }
+  .back-row { margin-top:12px; }
+</style>
+{% endblock %}
+{% block body %}
+<div class="step-wrap">
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <h1>이름을 선택해 주세요</h1>
+    </div>
+    <div class="breadcrumb">
+      <span class="bc-tag">{{ dept.aff_name }}</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-tag">{{ dept.name }}</span>
+    </div>
+    <div class="grid">
+      {% for m in members %}
+        <a href="{{ url_for('step_form', aff_id=dept.affiliation_id, dept_id=dept.id, member_id=m.id) }}">
+          <button class="choice-btn">{{ m.name }}</button>
+        </a>
+      {% else %}
+        <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:20px 0;">등록된 인원이 없습니다.<br>아래에서 직접 입력해 주세요.</p>
+      {% endfor %}
+    </div>
+    <hr class="divider">
+    <div class="custom-row">
+      <input class="custom-input" id="customName" placeholder="직접 입력 (이름)" autocomplete="off">
+      <button class="btn btn-primary" onclick="goCustom()">다음 →</button>
+    </div>
+    <div class="back-row">
+      <a href="{{ url_for('step_department', aff_id=dept.affiliation_id) }}" class="btn btn-secondary" style="width:100%;margin-top:8px;">← 부서/연구실로</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+  function goCustom() {
+    const val = document.getElementById('customName').value.trim();
+    if (!val) { document.getElementById('customName').focus(); return; }
+    location.href = `{{ url_for('step_form') }}?aff_id={{ dept.affiliation_id }}&dept_id={{ dept.id }}&custom_name=${encodeURIComponent(val)}`;
+  }
+  document.getElementById('customName').addEventListener('keydown', e => { if(e.key==='Enter') goCustom(); });
+</script>
+{% endblock %}
