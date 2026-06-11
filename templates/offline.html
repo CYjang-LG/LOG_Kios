@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>서버 연결 오류</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Malgun Gothic', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 60px 50px;
+      text-align: center;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+      max-width: 500px;
+      width: 90%;
+    }
+    .icon { font-size: 80px; margin-bottom: 24px; }
+    h1 { font-size: 1.8em; color: #333; margin-bottom: 16px; }
+    p  { font-size: 1.1em; color: #666; line-height: 1.7; margin-bottom: 12px; }
+    .step {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 1em;
+      color: #444;
+      text-align: left;
+      line-height: 1.8;
+    }
+    .step strong { color: #667eea; }
+    .retry-btn {
+      background: linear-gradient(145deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 18px 40px;
+      border-radius: 12px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+      width: 100%;
+    }
+    .retry-btn:active { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">⚠️</div>
+    <h1>서버에 연결할 수 없습니다</h1>
+    <p>Flask 서버가 실행 중이지 않습니다.</p>
+    <div class="step">
+      <strong>관리자 조치 방법:</strong><br>
+      1. Termux 앱을 실행하세요<br>
+      2. 아래 명령어를 입력하세요:<br>
+      <code style="background:#e9ecef;padding:4px 8px;border-radius:6px;font-size:0.95em;">cd ~/LOG_Kios && python app.py</code>
+    </div>
+    <button class="retry-btn" onclick="window.location.reload()">🔄 다시 연결하기</button>
+  </div>
+</body>
+</html>

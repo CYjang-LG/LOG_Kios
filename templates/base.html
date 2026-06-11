@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}장비 사용 키오스크{% endblock %}</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="장비 키오스크">
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -136,6 +145,27 @@
     </div>
 
     <script>
+        // Service Worker 등록
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                  .catch(err => console.log('SW 등록 실패:', err));
+            });
+        }
+
+        // PWA 설치 배너 자동 표시
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // 메인 화면에서만 설치 유도
+            if (window.location.pathname === '/') {
+                setTimeout(() => {
+                    if (deferredPrompt) deferredPrompt.prompt();
+                }, 2000);
+            }
+        });
+
         // 자동 새로고침 (10분 후, 메인 화면만)
         setTimeout(function() {
             if (window.location.pathname === '/') {
