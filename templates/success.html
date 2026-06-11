@@ -1,59 +1,56 @@
-{% extends "base.html" %}
-
-{% block header %}
-<h1>✅ 기록 완료!</h1>
-<p>장비 사용이 등록되었습니다</p>
+{% extends 'base.html' %}
+{% block title %}등록 완료{% endblock %}
+{% block extra_style %}
+<style>
+  .success-wrap {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 20px;
+  }
+  .success-card {
+    background: var(--surface);
+    border: 1px solid rgba(34,197,94,.25);
+    border-radius: 24px;
+    padding: 64px 50px;
+    text-align: center;
+    max-width: 520px; width: 100%;
+    box-shadow: 0 0 60px rgba(34,197,94,.08);
+  }
+  .success-icon {
+    font-size: 80px; margin-bottom: 24px;
+    animation: pop .5s cubic-bezier(.175,.885,.32,1.275);
+  }
+  @keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .success-title {
+    font-size: 2rem; font-weight: 700; margin-bottom: 12px;
+    color: #4ade80;
+  }
+  .success-name {
+    font-size: 1.2rem; color: var(--muted); margin-bottom: 40px;
+  }
+  .success-name strong { color: var(--text); }
+  .countdown { font-size: .9rem; color: var(--muted); margin-top: 20px; }
+</style>
 {% endblock %}
-
-{% block content %}
-<div style="background: white; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 30px;">
-    <div style="font-size: 3em; margin-bottom: 20px;">✅</div>
-    
-    <div style="font-size: 1.5em; color: #2ecc71; font-weight: 600; margin-bottom: 30px;">
-        기록되었습니다!
-    </div>
-    
-    <div style="background: #f8f9fa; padding: 25px; border-radius: 15px; text-align: left; max-width: 500px; margin: 0 auto;">
-        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 15px; font-size: 1.1em; line-height: 1.8;">
-            <div style="font-weight: 600; color: #666;">학과:</div>
-            <div>{{ department or '미입력' }}</div>
-            
-            <div style="font-weight: 600; color: #666;">교수:</div>
-            <div>{{ professor or '미입력' }} 교수</div>
-            
-            <div style="font-weight: 600; color: #666;">학생:</div>
-            <div>{{ student or '미입력' }}</div>
-            
-            <div style="font-weight: 600; color: #666;">장비:</div>
-            <div>{{ equipment or '미입력' }}</div>
-            
-            <div style="font-weight: 600; color: #666;">시간:</div>
-            <div>
-                {% if start_time and end_time %}
-                    {{ start_time }} ~ {{ end_time }}
-                {% else %}
-                    미입력
-                {% endif %}
-            </div>
-            
-            <div style="font-weight: 600; color: #666;">사용시간:</div>
-            <div style="color: #e74c3c; font-weight: 600;">
-                {{ duration_text or '미입력' }}
-            </div>
-        </div>
-    </div>
+{% block body %}
+<div class="success-wrap">
+  <div class="success-card">
+    <div class="success-icon">✅</div>
+    <h1 class="success-title">등록 완료!</h1>
+    <p class="success-name"><strong>{{ name }}</strong>님의 방문 기록이<br>성공적으로 등록되었습니다.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-success btn-lg" style="width:100%;">🏠 처음으로 돌아가기</a>
+    <p class="countdown" id="countdown">5초 후 자동으로 돌아갑니다</p>
+  </div>
 </div>
-
-<div style="text-align: center;">
-    <a href="{{ url_for('index') }}" class="touch-btn success" style="font-size: 1.3em; padding: 25px 50px;">
-        🏠 처음으로 돌아가기
-    </a>
-</div>
-
+{% endblock %}
+{% block script %}
 <script>
-// 10초 후 자동으로 메인 화면으로 이동
-setTimeout(function() {
-    window.location.href = '{{ url_for("index") }}';
-}, 10000);
+  let sec = 5;
+  const el = document.getElementById('countdown');
+  const timer = setInterval(() => {
+    sec--;
+    el.textContent = `${sec}초 후 자동으로 돌아갑니다`;
+    if (sec <= 0) { clearInterval(timer); location.href = '{{ url_for("index") }}'; }
+  }, 1000);
 </script>
 {% endblock %}

@@ -1,59 +1,158 @@
-{% extends "base.html" %}
-
-{% block header %}
-<h1>관리자 페이지</h1>
-<p>시스템 관리 및 설정</p>
+{% extends 'base.html' %}
+{% block title %}관리자 — 출입 기록{% endblock %}
+{% block extra_style %}
+<style>
+  body { user-select: text; }
+  .admin-wrap { max-width: 1200px; margin: 0 auto; padding: 32px 20px; }
+  .admin-header {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px; margin-bottom: 28px;
+  }
+  .admin-header h1 { font-size: 1.6rem; font-weight: 700; }
+  .admin-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .search-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
+  }
+  .search-bar .form-group { flex: 1; min-width: 160px; }
+  .search-bar label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: 6px; }
+  .search-bar input {
+    width: 100%; background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text); padding: 10px 14px;
+    font-size: .95rem; outline: none;
+  }
+  .search-bar input:focus { border-color: var(--primary); }
+  .stats { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+  .stat-chip {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 50px; padding: 8px 18px;
+    font-size: .9rem; color: var(--muted);
+  }
+  .stat-chip strong { color: var(--text); }
+  .table-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    background: var(--surface-2); padding: 14px 16px;
+    text-align: left; font-size: .85rem; color: var(--muted);
+    font-weight: 600; letter-spacing: .04em;
+  }
+  tbody tr { border-top: 1px solid var(--border); transition: background .15s; }
+  tbody tr:hover { background: var(--surface-2); }
+  tbody td { padding: 13px 16px; font-size: .95rem; vertical-align: middle; }
+  .badge {
+    display: inline-block; padding: 4px 10px; border-radius: 50px;
+    font-size: .78rem; font-weight: 600;
+    background: rgba(92,110,248,.15); color: #a5b4fc;
+  }
+  .pagination { display: flex; gap: 8px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+  .page-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 14px; border-radius: var(--radius-sm);
+    cursor: pointer; font-size: .9rem; transition: all .15s;
+  }
+  .page-btn.active { background: var(--primary); border-color: var(--primary); }
+  .page-btn:hover:not(.active) { background: var(--surface-2); }
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .delete-form { display: inline; }
+</style>
 {% endblock %}
+{% block body %}
+<div class="admin-wrap">
+  <div class="admin-header">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">← 메인</a>
+      <h1>📋 출입 기록 관리</h1>
+    </div>
+    <div class="admin-actions">
+      <a href="{{ url_for('export') }}" class="btn btn-success">⬇ 엑셀 내보내기</a>
+      <form method="POST" action="{{ url_for('delete_all') }}"
+            onsubmit="return confirm('모든 기록을 삭제할까요? 이 작업은 되돌릴 수 없습니다.')">
+        <button type="submit" class="btn btn-danger">🗑 전체 삭제</button>
+      </form>
+      <a href="{{ url_for('admin_logout') }}" class="btn btn-secondary">로그아웃</a>
+    </div>
+  </div>
 
-{% block content %}
-<div class="grid grid-2">
-    <a href="{{ url_for('logs') }}" class="touch-btn">
-        <div>
-            <div style="font-size: 2em; margin-bottom: 15px;">📊</div>
-            <div>사용 로그 확인</div>
-        </div>
-    </a>
+  <!-- 검색 -->
+  <form method="GET" action="{{ url_for('admin') }}">
+    <div class="search-bar">
+      <div class="form-group">
+        <label>검색 (이름/소속/목적)</label>
+        <input type="text" name="search" value="{{ search }}" placeholder="검색어 입력">
+      </div>
+      <div class="form-group">
+        <label>시작일</label>
+        <input type="date" name="date_from" value="{{ date_from }}">
+      </div>
+      <div class="form-group">
+        <label>종료일</label>
+        <input type="date" name="date_to" value="{{ date_to }}">
+      </div>
+      <button type="submit" class="btn btn-primary" style="height:42px;align-self:flex-end;">🔍 검색</button>
+      <a href="{{ url_for('admin') }}" class="btn btn-secondary" style="height:42px;align-self:flex-end;">초기화</a>
+    </div>
+  </form>
 
-    <a href="{{ url_for('users') }}" class="touch-btn success">
-        <div>
-            <div style="font-size: 2em; margin-bottom: 15px;">👥</div>
-            <div>사용자 관리</div>
-        </div>
-    </a>
+  <div class="stats">
+    <div class="stat-chip">전체 <strong>{{ total }}건</strong></div>
+    {% if search %}<div class="stat-chip">검색어: <strong>{{ search }}</strong></div>{% endif %}
+    {% if date_from %}<div class="stat-chip">{{ date_from }} ~</div>{% endif %}
+    {% if date_to %}<div class="stat-chip">~ {{ date_to }}</div>{% endif %}
+  </div>
 
-    <a href="{{ url_for('departments') }}" class="touch-btn" style="background: linear-gradient(145deg, #9b59b6, #8e44ad);">
-        <div>
-            <div style="font-size: 2em; margin-bottom: 15px;">🏫</div>
-            <div>학과 관리</div>
-        </div>
-    </a>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>날짜</th><th>입실</th><th>퇴실</th>
+          <th>이름</th><th>소속</th><th>목적</th>
+          <th>기타</th><th style="width:80px;">삭제</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if visitors %}
+          {% for v in visitors %}
+          <tr>
+            <td>{{ v.visit_date }}</td>
+            <td>{{ v.time_in }}</td>
+            <td>{{ v.time_out }}</td>
+            <td><strong>{{ v.name }}</strong></td>
+            <td>{{ v.affiliation }}</td>
+            <td><span class="badge">{{ v.purpose }}</span></td>
+            <td style="color:var(--muted);font-size:.85rem;">{{ v.note or '-' }}</td>
+            <td>
+              <form class="delete-form" method="POST"
+                    action="{{ url_for('delete_visitor', vid=v.id) }}"
+                    onsubmit="return confirm('이 기록을 삭제할까요?')">
+                <button type="submit" class="btn btn-danger"
+                        style="padding:6px 12px;font-size:.8rem;">삭제</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="8" class="empty">📭 검색 결과가 없습니다.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
 
-    <a href="{{ url_for('professors') }}" class="touch-btn" style="background: linear-gradient(145deg, #3498db, #2980b9);">
-        <div>
-            <div style="font-size: 2em; margin-bottom: 15px;">👨‍🏫</div>
-            <div>교수 관리</div>
-        </div>
-    </a>
-
-    <a href="{{ url_for('equipment_manage') }}" class="touch-btn secondary">
-        <div>
-            <div style="font-size: 2em; margin-bottom: 15px;">🔧</div>
-            <div>장비 관리</div>
-        </div>
-    </a>
-
-    <a href="{{ url_for('export') }}" class="touch-btn" style="background: linear-gradient(145deg, #f39c12, #e67e22);">
-        <div>
-            <div style="font-size: 2em; margin-bottom: 15px;">📥</div>
-            <div>데이터 내보내기</div>
-        </div>
-    </a>
-</div>
-
-<!-- 로그아웃 -->
-<div style="margin-top: 30px; text-align: center;">
-    <a href="{{ url_for('admin_logout') }}" class="touch-btn danger" style="display: inline-flex; max-width: 300px;">
-        🚪 관리자 로그아웃
-    </a>
+  <!-- 페이지네이션 -->
+  {% if total_pages > 1 %}
+  <div class="pagination">
+    {% for p in range(1, total_pages+1) %}
+      <a href="{{ url_for('admin', page=p, search=search, date_from=date_from, date_to=date_to) }}">
+        <button class="page-btn {% if p == page %}active{% endif %}">{{ p }}</button>
+      </a>
+    {% endfor %}
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

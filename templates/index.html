@@ -1,82 +1,85 @@
-{% extends "base.html" %}
-
-{% block header %}
-<div style="display: flex; align-items: center; justify-content: space-between;">
-    <!-- 왼쪽 로고 -->
-    <div style="flex: 0 0 auto;">
-        <img src="{{ url_for('static', filename='inha_logo.png') }}" 
-             alt="학교 로고" 
-             style="width: 200px; height: auto;">
-    </div>
-    
-    <!-- 가운데 제목 -->
-    <div style="flex: 1; text-align: center;">
-        <h1>소속 선택</h1>
-        <p>사용자의 소속을 선택해주세요</p>
-    </div>
-    
-    <!-- 오른쪽 여백 (대칭 맞추기용) -->
-    <div style="flex: 0 0 200px;"></div>
+{% extends 'base.html' %}
+{% block title %}출입자 기록 키오스크{% endblock %}
+{% block extra_style %}
+<style>
+  .kiosk-wrap {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 20px;
+  }
+  .kiosk-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 60px 50px;
+    text-align: center;
+    max-width: 600px; width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  }
+  .kiosk-icon { font-size: 72px; margin-bottom: 24px; }
+  .kiosk-title {
+    font-size: 2.2rem; font-weight: 700;
+    margin-bottom: 12px; color: var(--text);
+  }
+  .kiosk-sub { color: var(--muted); font-size: 1.1rem; margin-bottom: 8px; }
+  .kiosk-date {
+    display: inline-block;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 8px 24px;
+    font-size: 1rem; color: var(--muted);
+    margin-bottom: 40px;
+  }
+  .enter-btn {
+    width: 100%;
+    font-size: 1.4rem;
+    padding: 26px;
+    border-radius: var(--radius);
+    background: var(--primary);
+    color: #fff; border: none; cursor: pointer;
+    font-weight: 700;
+    box-shadow: 0 8px 30px rgba(92,110,248,.35);
+    transition: all .2s;
+    margin-bottom: 16px;
+  }
+  .enter-btn:hover { background: var(--primary-h); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(92,110,248,.45); }
+  .enter-btn:active { transform: translateY(0); }
+  .pulse {
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 8px 30px rgba(92,110,248,.35); }
+    50%       { box-shadow: 0 8px 50px rgba(92,110,248,.65); }
+  }
+</style>
+{% endblock %}
+{% block body %}
+<div class="kiosk-wrap">
+  <div class="kiosk-card">
+    <div class="kiosk-icon">🏢</div>
+    <h1 class="kiosk-title">출입자 기록</h1>
+    <p class="kiosk-sub">방문하신 것을 환영합니다</p>
+    <div class="kiosk-date" id="datetime">{{ today }}</div>
+    <a href="{{ url_for('register') }}">
+      <button class="enter-btn pulse">✍️ &nbsp; 방문 기록 등록하기</button>
+    </a>
+  </div>
 </div>
 {% endblock %}
-
-{% block content %}
-<div style="margin-bottom: 20px; text-align: center;">
-    <p style="color: #666; font-size: 1.1em;">현재 {{ departments|length }}개의 학과가 등록되어 있습니다.</p>
-</div>
-
-<div class="grid grid-3">
-    {% for department in departments %}
-    <a href="{{ url_for('select_professor', department_id=department.id) }}" class="touch-btn">
-        <div>
-            <div style="font-size: 1.5em; margin-bottom: 10px; text-align: center;">🏫</div>
-            <div style="font-size: 1.1em; font-weight: 600;">{{ department.name }}</div>
-        </div>
-    </a>
-    {% endfor %}
-    
-    <!-- 빠른 추가 버튼 -->
-    <a href="{{ url_for('quick_add') }}" class="touch-btn" style="background: linear-gradient(145deg, #e74c3c, #c0392b); border: 3px dashed white;">
-        <div>
-            <div style="font-size: 1.5em; margin-bottom: 10px;">➕</div>
-            <div style="font-size: 1em; font-weight: 600;">새로 추가하기</div>
-        </div>
-    </a>
-</div>
-
-{% if departments|length == 0 %}
-<div style="text-align: center; margin-top: 50px;">
-    <p style="font-size: 1.3em; color: #666; margin-bottom: 30px;">등록된 학과가 없습니다.</p>
-    <div style="display: flex; gap: 20px; justify-content: center;">
-        <a href="{{ url_for('quick_add') }}" class="touch-btn">빠른 추가</a>
-        <a href="{{ url_for('admin') }}" class="touch-btn secondary">관리자 페이지</a>
-    </div>
-</div>
-{% endif %}
-
-<!-- 디버깅 정보 (개발 중에만 표시) -->
-<div style="margin-top: 30px; text-align: center;">
-    <a href="/debug" style="color: #999; text-decoration: none; font-size: 0.9em;">🔍 디버그 정보 확인</a>
-</div>
-
-<style>
-/* 추가 태블릿 최적화 */
-.grid-3 {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2vh;
-}
-
-@media (max-width: 768px) {
-    .grid-3 {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5vh;
-    }
-}
-
-@media (min-width: 1200px) {
-    .grid-3 {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-</style>
+{% block script %}
+<script>
+  function updateClock() {
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    const dateStr = `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`;
+    const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    document.getElementById('datetime').textContent = `${dateStr}  ${timeStr}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+  // 10분 후 자동 새로고침
+  setTimeout(() => location.reload(), 600000);
+</script>
 {% endblock %}
