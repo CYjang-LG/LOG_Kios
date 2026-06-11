@@ -8,7 +8,12 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'log-kios-secret-key-2024')
-ADMIN_PIN = os.environ.get('ADMIN_PIN', '1234')
+
+# ─────────────────────────────────
+# 관리자 PIN — 변경 시 여기만 수정
+ADMIN_PIN = '1234'
+# ─────────────────────────────────
+
 DB_PATH = 'visitor.db'
 
 # ───────────────────────────────
