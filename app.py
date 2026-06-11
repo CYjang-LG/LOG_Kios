@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, jsonify
+from functools import wraps
 import sqlite3
 import os
 from datetime import datetime, date
@@ -21,7 +22,6 @@ def get_db():
 def init_db():
     conn = get_db()
     c = conn.cursor()
-    # 출입자 기록 테이블
     c.execute('''
         CREATE TABLE IF NOT EXISTS visitors (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,14 +37,12 @@ def init_db():
             created_at  TEXT NOT NULL
         )
     ''')
-    # 사전 등록 소속 테이블
     c.execute('''
         CREATE TABLE IF NOT EXISTS affiliations (
             id   INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL UNIQUE
         )
     ''')
-    # 사전 등록 부서/연구실 테이블 (소속 하위)
     c.execute('''
         CREATE TABLE IF NOT EXISTS departments (
             id             INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,7 +51,6 @@ def init_db():
             FOREIGN KEY (affiliation_id) REFERENCES affiliations(id) ON DELETE CASCADE
         )
     ''')
-    # 사전 등록 인원 테이블 (부서 하위)
     c.execute('''
         CREATE TABLE IF NOT EXISTS members (
             id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,6 +63,17 @@ def init_db():
     conn.close()
 
 init_db()
+
+# ───────────────────────────────
+# 관리자 인증 데코레이터
+# ───────────────────────────────
+def admin_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get('admin'):
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return decorated
 
 # ───────────────────────────────
 # 키오스크 메인
@@ -97,7 +105,10 @@ def step_department(aff_id):
 @app.route('/step/member/<int:dept_id>')
 def step_member(dept_id):
     conn = get_db()
-    dept = conn.execute('SELECT d.*, a.name as aff_name FROM departments d JOIN affiliations a ON d.affiliation_id=a.id WHERE d.id=?', (dept_id,)).fetchone()
+    dept = conn.execute(
+        'SELECT d.*, a.name as aff_name FROM departments d JOIN affiliations a ON d.affiliation_id=a.id WHERE d.id=?',
+        (dept_id,)
+    ).fetchone()
     members = conn.execute('SELECT * FROM members WHERE department_id=? ORDER BY name', (dept_id,)).fetchall()
     conn.close()
     if not dept:
@@ -106,9 +117,8 @@ def step_member(dept_id):
 
 @app.route('/step/form')
 def step_form():
-    """최종 입력 폼 - 쿼리스트링으로 선택 값 전달"""
-    aff_id  = request.args.get('aff_id', '', type=str)
-    dept_id = request.args.get('dept_id', '', type=str)
+    aff_id    = request.args.get('aff_id', '', type=str)
+    dept_id   = request.args.get('dept_id', '', type=str)
     member_id = request.args.get('member_id', '', type=str)
     custom_aff  = request.args.get('custom_aff', '')
     custom_dept = request.args.get('custom_dept', '')
@@ -130,12 +140,11 @@ def step_form():
         if row: name = row['name']
     conn.close()
 
-    # 직접입력 값 우선
     if custom_aff:  affiliation = custom_aff
     if custom_dept: department  = custom_dept
     if custom_name: name        = custom_name
 
-    today   = date.today().strftime('%Y-%m-%d')
+    today    = date.today().strftime('%Y-%m-%d')
     now_time = datetime.now().strftime('%H:%M')
     return render_template('step_form.html',
         affiliation=affiliation, department=department, name=name,
@@ -143,15 +152,15 @@ def step_form():
 
 @app.route('/register', methods=['POST'])
 def register():
-    visit_date   = request.form.get('visit_date', '').strip()
-    time_in      = request.form.get('time_in', '').strip()
-    time_out     = request.form.get('time_out', '18:00').strip()
-    affiliation  = request.form.get('affiliation', '').strip()
-    department   = request.form.get('department', '').strip()
-    name         = request.form.get('name', '').strip()
-    extra_count  = request.form.get('extra_count', '0').strip()
-    purpose      = request.form.get('purpose', '').strip()
-    note         = request.form.get('note', '').strip()
+    visit_date  = request.form.get('visit_date', '').strip()
+    time_in     = request.form.get('time_in', '').strip()
+    time_out    = request.form.get('time_out', '18:00').strip()
+    affiliation = request.form.get('affiliation', '').strip()
+    department  = request.form.get('department', '').strip()
+    name        = request.form.get('name', '').strip()
+    extra_count = request.form.get('extra_count', '0').strip()
+    purpose     = request.form.get('purpose', '').strip()
+    note        = request.form.get('note', '').strip()
 
     if not all([visit_date, time_in, affiliation, name, purpose]):
         flash('필수 항목을 모두 입력해주세요.', 'error')
@@ -159,7 +168,7 @@ def register():
 
     try:
         extra_count = int(extra_count)
-    except:
+    except (ValueError, TypeError):
         extra_count = 0
 
     conn = get_db()
@@ -218,15 +227,6 @@ def admin_logout():
     session.pop('admin', None)
     return redirect(url_for('index'))
 
-def admin_required(f):
-    from functools import wraps
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if not session.get('admin'):
-            return redirect(url_for('admin_login'))
-        return f(*args, **kwargs)
-    return decorated
-
 @app.route('/admin')
 @admin_required
 def admin():
@@ -241,7 +241,7 @@ def admin():
     params = []
     if search:
         query  += ' AND (name LIKE ? OR affiliation LIKE ? OR purpose LIKE ? OR department LIKE ?)'
-        params += [f'%{search}%']*4
+        params += [f'%{search}%'] * 4
     if date_from:
         query  += ' AND visit_date >= ?'
         params.append(date_from)
@@ -251,7 +251,7 @@ def admin():
 
     total = conn.execute('SELECT COUNT(*) FROM (' + query + ')', params).fetchone()[0]
     query += ' ORDER BY visit_date DESC, time_in DESC LIMIT ? OFFSET ?'
-    params += [per_page, (page-1)*per_page]
+    params += [per_page, (page - 1) * per_page]
     visitors = conn.execute(query, params).fetchall()
     conn.close()
 
@@ -260,13 +260,12 @@ def admin():
         visitors=visitors, page=page, total_pages=total_pages,
         total=total, search=search, date_from=date_from, date_to=date_to)
 
-# 사전등록 관리
 @app.route('/admin/members')
 @admin_required
 def admin_members():
     conn = get_db()
     affiliations = conn.execute('SELECT * FROM affiliations ORDER BY name').fetchall()
-    aff_id = request.args.get('aff_id', type=int)
+    aff_id  = request.args.get('aff_id', type=int)
     dept_id = request.args.get('dept_id', type=int)
     departments, members = [], []
     sel_aff, sel_dept = None, None
@@ -288,13 +287,14 @@ def admin_members():
 @app.route('/admin/members/add_aff', methods=['POST'])
 @admin_required
 def add_affiliation():
-    name = request.form.get('name','').strip()
+    name = request.form.get('name', '').strip()
     if name:
         conn = get_db()
         try:
             conn.execute('INSERT INTO affiliations (name) VALUES (?)', (name,))
             conn.commit()
-        except: pass
+        except Exception:
+            pass
         conn.close()
     return redirect(url_for('admin_members'))
 
@@ -302,7 +302,7 @@ def add_affiliation():
 @admin_required
 def add_department():
     aff_id = request.form.get('aff_id', type=int)
-    name   = request.form.get('name','').strip()
+    name   = request.form.get('name', '').strip()
     if aff_id and name:
         conn = get_db()
         conn.execute('INSERT INTO departments (affiliation_id, name) VALUES (?,?)', (aff_id, name))
@@ -314,7 +314,7 @@ def add_department():
 @admin_required
 def add_member():
     dept_id = request.form.get('dept_id', type=int)
-    name    = request.form.get('name','').strip()
+    name    = request.form.get('name', '').strip()
     aff_id  = request.form.get('aff_id', type=int)
     if dept_id and name:
         conn = get_db()
@@ -349,7 +349,10 @@ def del_department(did):
 @admin_required
 def del_member(mid):
     conn = get_db()
-    m = conn.execute('SELECT m.department_id, d.affiliation_id FROM members m JOIN departments d ON m.department_id=d.id WHERE m.id=?', (mid,)).fetchone()
+    m = conn.execute(
+        'SELECT m.department_id, d.affiliation_id FROM members m JOIN departments d ON m.department_id=d.id WHERE m.id=?',
+        (mid,)
+    ).fetchone()
     dept_id = m['department_id'] if m else None
     aff_id  = m['affiliation_id'] if m else None
     conn.execute('DELETE FROM members WHERE id=?', (mid,))
@@ -390,37 +393,44 @@ def export():
     ws = wb.active
     ws.title = '출입자 기록'
 
-    headers = ['No','날짜','입실','퇴실','소속','부서/연구실','이름','동반인원','방문목적','기타','등록시각']
+    headers = ['No', '날짜', '입실', '퇴실', '소속', '부서/연구실', '이름', '동반인원', '방문목적', '기타', '등록시각']
     hfill  = PatternFill('solid', fgColor='0D2B6B')
     hfont  = Font(bold=True, color='FFFFFF')
     thin   = Side(style='thin')
     border = Border(left=thin, right=thin, top=thin, bottom=thin)
     for col, h in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col, value=h)
-        cell.fill = hfill; cell.font = hfont
+        cell.fill = hfill
+        cell.font = hfont
         cell.alignment = Alignment(horizontal='center')
         cell.border = border
 
     for i, row in enumerate(rows, 1):
-        data = [i, row['visit_date'], row['time_in'], row['time_out'],
-                row['affiliation'], row['department'], row['name'],
-                f"+{row['extra_count']}명" if row['extra_count'] else '1명',
-                row['purpose'], row['note'] or '', row['created_at']]
+        data = [
+            i, row['visit_date'], row['time_in'], row['time_out'],
+            row['affiliation'], row['department'], row['name'],
+            f"+{row['extra_count']}명" if row['extra_count'] else '1명',
+            row['purpose'], row['note'] or '', row['created_at']
+        ]
         for col, val in enumerate(data, 1):
-            cell = ws.cell(row=i+1, column=col, value=val)
+            cell = ws.cell(row=i + 1, column=col, value=val)
             cell.border = border
-            cell.alignment = Alignment(horizontal='center' if col<=4 else 'left')
+            cell.alignment = Alignment(horizontal='center' if col <= 4 else 'left')
 
-    for col, w in enumerate([6,12,8,8,14,14,10,8,14,16,18], 1):
+    for col, w in enumerate([6, 12, 8, 8, 14, 14, 10, 8, 14, 16, 18], 1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(col)].width = w
 
     wb.save(fname)
-    resp = send_file(os.path.abspath(fname), as_attachment=True,
-                     download_name=os.path.basename(fname))
+    abs_path = os.path.abspath(fname)
+    resp = send_file(abs_path, as_attachment=True, download_name=os.path.basename(fname))
+
     @resp.call_on_close
     def cleanup():
-        try: os.remove(fname)
-        except: pass
+        try:
+            os.remove(abs_path)
+        except OSError:
+            pass
+
     return resp
 
 @app.route('/offline')
