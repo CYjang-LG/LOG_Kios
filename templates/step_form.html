@@ -17,6 +17,7 @@
   .section-header p { color:var(--muted); font-size:.9rem; }
   .summary-card { background:var(--light); border:1px solid rgba(13,43,107,0.1); border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:20px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
   .info-chip { background:var(--white); border:1.5px solid var(--border); border-radius:50px; padding:5px 14px; font-size:.85rem; font-weight:700; color:var(--navy); }
+  .info-chip.missing { border-color:#e53; color:#e53; background:#fff5f5; }
   .form-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:28px 26px; margin-bottom:14px; }
   .form-section-title { font-size:.78rem; font-weight:800; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-bottom:18px; }
   .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
@@ -26,12 +27,15 @@
   .form-label .req { color:var(--navy); }
   .form-control { width:100%; background:var(--bg); border:1.5px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-size:1rem; padding:12px 14px; outline:none; transition:border-color .2s; -webkit-appearance:none; font-family:inherit; }
   .form-control:focus { border-color:var(--navy); background:var(--white); }
+  .form-control.error { border-color:#e53; }
   .time-row { display:grid; grid-template-columns:1fr 20px 1fr; gap:8px; align-items:center; }
   .time-sep { color:var(--muted); text-align:center; font-weight:700; font-size:.9rem; }
   .purpose-grid { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
   .purpose-chip { padding:9px 16px; border-radius:50px; background:var(--bg); border:1.5px solid var(--border); color:var(--muted); font-size:.88rem; cursor:pointer; transition:all .18s; font-weight:600; font-family:inherit; }
   .purpose-chip:hover { border-color:var(--navy); color:var(--navy); }
   .purpose-chip.active { background:var(--navy); border-color:var(--navy); color:#fff; }
+  .purpose-error { display:none; color:#e53; font-size:.82rem; margin-top:4px; font-weight:600; }
+  .purpose-error.show { display:block; }
   .purpose-input-wrap { display:none; margin-top:6px; }
   .purpose-input-wrap.open { display:block; }
   .extra-row { display:flex; align-items:center; gap:12px; }
@@ -41,6 +45,8 @@
   .extra-unit { color:var(--muted); font-size:.88rem; }
   .form-actions { display:flex; gap:12px; margin-top:4px; }
   .form-actions .btn { flex:1; }
+  .info-alert { background:#fff5f5; border:1.5px solid #e53; border-radius:var(--radius-sm); padding:12px 16px; margin-bottom:16px; color:#c00; font-size:.9rem; font-weight:600; display:none; }
+  .info-alert.show { display:block; }
 </style>
 {% endblock %}
 {% block body %}
@@ -61,17 +67,27 @@
       <h1>방문 정보를 확인해 주세요</h1>
       <p>방문 목적과 시간을 입력하고 등록을 완료하세요</p>
     </div>
+
+    {# 소속/이름 빈 값 경고 #}
+    <div class="info-alert" id="infoAlert"></div>
+
     <div class="summary-card">
-      {% if affiliation %}<span class="info-chip">{{ affiliation }}</span>{% endif %}
-      {% if department %}<span class="info-chip">{{ department }}</span>{% endif %}
-      {% if name %}<span class="info-chip">{{ name }}</span>{% endif %}
+      <span class="info-chip{% if not affiliation %} missing{% endif %}" id="chipAff">
+        {{ affiliation if affiliation else '소속 없음' }}
+      </span>
+      {% if department %}
+      <span class="info-chip">{{ department }}</span>
+      {% endif %}
+      <span class="info-chip{% if not name %} missing{% endif %}" id="chipName">
+        {{ name if name else '이름 없음' }}
+      </span>
     </div>
+
     <form method="POST" action="{{ url_for('register') }}" id="registerForm">
       <input type="hidden" name="affiliation" value="{{ affiliation }}">
       <input type="hidden" name="department"  value="{{ department }}">
       <input type="hidden" name="name"        value="{{ name }}">
-      <!-- purpose: 최종 제출 시 이 hidden 필드 하나로만 전송 -->
-      <input type="hidden" name="purpose" id="purposeFinal">
+      <input type="hidden" name="purpose"     id="purposeFinal">
       <div class="form-card">
         <div class="form-section-title">방문 일시</div>
         <div class="form-row">
@@ -97,6 +113,7 @@
             <button type="button" class="purpose-chip" data-val="상시출입">상시출입</button>
             <button type="button" class="purpose-chip" data-val="__direct__">직접 입력</button>
           </div>
+          <div class="purpose-error" id="purposeError">방문 목적을 선택해 주세요.</div>
           <div class="purpose-input-wrap" id="purposeInputWrap">
             <input type="text" id="purposeDirectInput" class="form-control" placeholder="방문 목적을 입력하세요" autocomplete="off">
           </div>
@@ -127,17 +144,31 @@
 {% endblock %}
 {% block script %}
 <script>
-  const chips = document.querySelectorAll('.purpose-chip');
+  const chips       = document.querySelectorAll('.purpose-chip');
   const directWrap  = document.getElementById('purposeInputWrap');
   const directInput = document.getElementById('purposeDirectInput');
   const finalInput  = document.getElementById('purposeFinal');
-  let selectedVal = '';
+  const purposeErr  = document.getElementById('purposeError');
+  const infoAlert   = document.getElementById('infoAlert');
 
+  // 소속/이름 빈 값 경고 표시
+  const affVal  = '{{ affiliation | e }}';
+  const nameVal = '{{ name | e }}';
+  if (!affVal || !nameVal) {
+    const missing = [];
+    if (!affVal)  missing.push('소속');
+    if (!nameVal) missing.push('이름');
+    infoAlert.textContent = '⚠️ ' + missing.join(', ') + '이(가) 입력되지 않았습니다. 이전 단계로 돌아가서 다시 시도해주세요.';
+    infoAlert.classList.add('show');
+  }
+
+  let selectedVal = '';
   chips.forEach(chip => {
     chip.addEventListener('click', () => {
       chips.forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       selectedVal = chip.dataset.val;
+      purposeErr.classList.remove('show');
       if (selectedVal === '__direct__') {
         directWrap.classList.add('open');
         directInput.focus();
@@ -151,25 +182,32 @@
   });
 
   document.getElementById('registerForm').addEventListener('submit', function(e) {
-    // 목적 칩 미선택
-    if (!selectedVal) {
+    // 소속/이름 빈 값이면 제출 차단
+    if (!affVal || !nameVal) {
       e.preventDefault();
-      alert('방문 목적을 선택해 주세요.');
+      infoAlert.classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    // 직접입력 선택했는데 내용 없음
+    if (!selectedVal) {
+      e.preventDefault();
+      purposeErr.classList.add('show');
+      purposeErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     if (selectedVal === '__direct__') {
       const v = directInput.value.trim();
       if (!v) {
         e.preventDefault();
+        directInput.classList.add('error');
         directInput.focus();
-        alert('방문 목적을 입력해 주세요.');
         return;
       }
       finalInput.value = v;
     }
-    // finalInput.value 가 반드시 채워진 상태로 submit
   });
+
+  directInput.addEventListener('input', () => directInput.classList.remove('error'));
 
   function changeCount(d) {
     const el = document.getElementById('extraCount');

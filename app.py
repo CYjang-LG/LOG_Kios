@@ -9,16 +9,9 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'log-kios-secret-key-2024')
 
-# ─────────────────────────────────
-# 관리자 PIN — 변경 시 여기만 수정
 ADMIN_PIN = '1234'
-# ─────────────────────────────────
-
 DB_PATH = 'visitor.db'
 
-# ───────────────────────────────
-# DB 초기화
-# ───────────────────────────────
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -69,9 +62,6 @@ def init_db():
 
 init_db()
 
-# ───────────────────────────────
-# 관리자 인증 데코레이터
-# ───────────────────────────────
 def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -80,16 +70,10 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated
 
-# ───────────────────────────────
-# 키오스크 메인
-# ───────────────────────────────
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# ───────────────────────────────
-# 단계별 등록 플로우
-# ───────────────────────────────
 @app.route('/step/affiliation')
 def step_affiliation():
     conn = get_db()
@@ -101,7 +85,6 @@ def step_affiliation():
 def step_department(aff_id):
     custom_aff = request.args.get('custom_aff', '').strip()
     conn = get_db()
-    # aff_id=0 이면 직접입력 모드: DB 조회 없이 빈 부서 목록으로
     if aff_id == 0:
         if not custom_aff:
             conn.close()
@@ -124,7 +107,6 @@ def step_department(aff_id):
 def step_member(dept_id):
     custom_aff  = request.args.get('custom_aff', '').strip()
     custom_dept = request.args.get('custom_dept', '').strip()
-    # dept_id=0 이면 직접입력 모드: 바로 이름 단계로
     if dept_id == 0:
         if not (custom_aff or custom_dept):
             return redirect(url_for('step_affiliation'))
@@ -145,32 +127,42 @@ def step_member(dept_id):
 
 @app.route('/step/form')
 def step_form():
-    aff_id      = request.args.get('aff_id', '', type=str)
-    dept_id     = request.args.get('dept_id', '', type=str)
-    member_id   = request.args.get('member_id', '', type=str)
-    custom_aff  = request.args.get('custom_aff', '')
-    custom_dept = request.args.get('custom_dept', '')
-    custom_name = request.args.get('custom_name', '')
+    # 우선순위: custom_* 입력값 > DB 조회값
+    custom_aff  = request.args.get('custom_aff',  '').strip()
+    custom_dept = request.args.get('custom_dept', '').strip()
+    custom_name = request.args.get('custom_name', '').strip()
+    aff_id      = request.args.get('aff_id',    '').strip()
+    dept_id     = request.args.get('dept_id',   '').strip()
+    member_id   = request.args.get('member_id', '').strip()
 
-    conn = get_db()
     affiliation = ''
     department  = ''
     name        = ''
 
-    if aff_id:
+    # DB 조회는 custom 값이 없을 때만
+    if not custom_aff and aff_id:
+        conn = get_db()
         row = conn.execute('SELECT name FROM affiliations WHERE id=?', (aff_id,)).fetchone()
+        conn.close()
         if row: affiliation = row['name']
-    if dept_id:
-        row = conn.execute('SELECT name FROM departments WHERE id=?', (dept_id,)).fetchone()
-        if row: department = row['name']
-    if member_id:
-        row = conn.execute('SELECT name FROM members WHERE id=?', (member_id,)).fetchone()
-        if row: name = row['name']
-    conn.close()
+    else:
+        affiliation = custom_aff
 
-    if custom_aff:  affiliation = custom_aff
-    if custom_dept: department  = custom_dept
-    if custom_name: name        = custom_name
+    if not custom_dept and dept_id:
+        conn = get_db()
+        row = conn.execute('SELECT name FROM departments WHERE id=?', (dept_id,)).fetchone()
+        conn.close()
+        if row: department = row['name']
+    else:
+        department = custom_dept
+
+    if not custom_name and member_id:
+        conn = get_db()
+        row = conn.execute('SELECT name FROM members WHERE id=?', (member_id,)).fetchone()
+        conn.close()
+        if row: name = row['name']
+    else:
+        name = custom_name
 
     today    = date.today().strftime('%Y-%m-%d')
     now_time = datetime.now().strftime('%H:%M')
@@ -191,7 +183,13 @@ def register():
     note        = request.form.get('note', '').strip()
 
     if not all([visit_date, time_in, affiliation, name, purpose]):
-        flash('필수 항목을 모두 입력해주세요.', 'error')
+        missing = []
+        if not visit_date:   missing.append('날짜')
+        if not time_in:      missing.append('입실 시간')
+        if not affiliation:  missing.append('소속')
+        if not name:         missing.append('이름')
+        if not purpose:      missing.append('방문 목적')
+        flash(f'필수 항목을 입력해주세요: {", ".join(missing)}', 'error')
         return redirect(url_for('step_affiliation'))
 
     try:
@@ -214,9 +212,6 @@ def success():
     name = request.args.get('name', '')
     return render_template('success.html', name=name)
 
-# ───────────────────────────────
-# API (단계별 데이터)
-# ───────────────────────────────
 @app.route('/api/affiliations')
 def api_affiliations():
     conn = get_db()
@@ -238,9 +233,6 @@ def api_members(dept_id):
     conn.close()
     return jsonify([dict(r) for r in rows])
 
-# ───────────────────────────────
-# 관리자
-# ───────────────────────────────
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
