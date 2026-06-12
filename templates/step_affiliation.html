@@ -104,16 +104,20 @@
       card.style.borderColor = '';
     }
   }
-  // 소속 직접입력 → 부서 단계로 진행 (부서도 직접입력 가능)
   function goCustom() {
     const val = document.getElementById('customAff').value.trim();
-    if (!val) { document.getElementById('customAff').focus(); return; }
-    location.href = `{{ url_for('step_department', aff_id=0) }}`.replace('/0', '/0') +
-      '?custom_aff=' + encodeURIComponent(val);
+    if (!val) {
+      document.getElementById('customAff').focus();
+      document.getElementById('customAff').style.borderColor = 'var(--error, #e53)';
+      return;
+    }
+    // aff_id=0 + custom_aff 파라미터로 step_department 진행
+    location.href = '/step/department/0?custom_aff=' + encodeURIComponent(val);
   }
   document.addEventListener('DOMContentLoaded', () => {
-    const inp = document.getElementById('customAff');
-    if (inp) inp.addEventListener('keydown', e => { if(e.key==='Enter') goCustom(); });
+    document.getElementById('customAff').addEventListener('keydown', e => {
+      if (e.key === 'Enter') goCustom();
+    });
   });
 </script>
 {% endblock %}

@@ -99,16 +99,38 @@ def step_affiliation():
 
 @app.route('/step/department/<int:aff_id>')
 def step_department(aff_id):
+    custom_aff = request.args.get('custom_aff', '').strip()
     conn = get_db()
-    aff = conn.execute('SELECT * FROM affiliations WHERE id=?', (aff_id,)).fetchone()
-    departments = conn.execute('SELECT * FROM departments WHERE affiliation_id=? ORDER BY name', (aff_id,)).fetchall()
+    # aff_id=0 이면 직접입력 모드: DB 조회 없이 빈 부서 목록으로
+    if aff_id == 0:
+        if not custom_aff:
+            conn.close()
+            return redirect(url_for('step_affiliation'))
+        aff = None
+        departments = []
+    else:
+        aff = conn.execute('SELECT * FROM affiliations WHERE id=?', (aff_id,)).fetchone()
+        if not aff:
+            conn.close()
+            return redirect(url_for('step_affiliation'))
+        departments = conn.execute(
+            'SELECT * FROM departments WHERE affiliation_id=? ORDER BY name', (aff_id,)
+        ).fetchall()
     conn.close()
-    if not aff:
-        return redirect(url_for('step_affiliation'))
-    return render_template('step_department.html', aff=aff, departments=departments)
+    return render_template('step_department.html',
+                           aff=aff, departments=departments, custom_aff=custom_aff)
 
 @app.route('/step/member/<int:dept_id>')
 def step_member(dept_id):
+    custom_aff  = request.args.get('custom_aff', '').strip()
+    custom_dept = request.args.get('custom_dept', '').strip()
+    # dept_id=0 이면 직접입력 모드: 바로 이름 단계로
+    if dept_id == 0:
+        if not (custom_aff or custom_dept):
+            return redirect(url_for('step_affiliation'))
+        return render_template('step_member.html',
+                               dept=None, members=[],
+                               custom_aff=custom_aff, custom_dept=custom_dept)
     conn = get_db()
     dept = conn.execute(
         'SELECT d.*, a.name as aff_name FROM departments d JOIN affiliations a ON d.affiliation_id=a.id WHERE d.id=?',
@@ -118,13 +140,14 @@ def step_member(dept_id):
     conn.close()
     if not dept:
         return redirect(url_for('step_affiliation'))
-    return render_template('step_member.html', dept=dept, members=members)
+    return render_template('step_member.html', dept=dept, members=members,
+                           custom_aff=custom_aff, custom_dept=custom_dept)
 
 @app.route('/step/form')
 def step_form():
-    aff_id    = request.args.get('aff_id', '', type=str)
-    dept_id   = request.args.get('dept_id', '', type=str)
-    member_id = request.args.get('member_id', '', type=str)
+    aff_id      = request.args.get('aff_id', '', type=str)
+    dept_id     = request.args.get('dept_id', '', type=str)
+    member_id   = request.args.get('member_id', '', type=str)
     custom_aff  = request.args.get('custom_aff', '')
     custom_dept = request.args.get('custom_dept', '')
     custom_name = request.args.get('custom_name', '')
