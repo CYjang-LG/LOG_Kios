@@ -34,6 +34,8 @@
 </style>
 {% endblock %}
 {% block body %}
+{# JS에서 쓸 변수: 서버에서 미리 계산 #}
+{% set aff_id_val = aff.id if aff else 0 %}
 <div class="step-page">
   <div class="step-inner">
     <div class="progress-wrap">
@@ -52,20 +54,26 @@
       <p>소속 내 해당 부서를 선택하세요</p>
     </div>
     <div class="card-grid">
+      {# DB 부서 카드: aff_id와 custom_aff 모두 전달 #}
       {% for d in departments %}
-      <a href="{{ url_for('step_member', dept_id=d.id) }}">
-        <div class="choice-card">
-          <div class="card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-              <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-            </svg>
+        {% if custom_aff %}
+          {# 소속 직접입력 경로: custom_aff 보존, dept_id로 이름단계 진행 #}
+          <a href="{{ url_for('step_member', dept_id=d.id) }}?custom_aff={{ custom_aff|urlencode }}">
+        {% else %}
+          <a href="{{ url_for('step_member', dept_id=d.id) }}">
+        {% endif %}
+          <div class="choice-card">
+            <div class="card-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+            </div>
+            <div class="card-label">{{ d.name }}</div>
           </div>
-          <div class="card-label">{{ d.name }}</div>
-        </div>
-      </a>
+        </a>
       {% else %}
-      <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:32px 0;font-size:.95rem;">등록된 부서가 없습니다.</p>
+        <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:32px 0;font-size:.95rem;">등록된 부서가 없습니다.</p>
       {% endfor %}
       <div class="choice-card direct-card" onclick="toggleDirect()" id="directCard">
         <div class="card-icon">
@@ -82,29 +90,19 @@
         <button class="btn btn-primary" onclick="goCustom()">다음 →</button>
       </div>
     </div>
-    {% if aff %}
     <a href="{{ url_for('step_affiliation') }}">
       <button class="back-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         이전으로 돌아가기
       </button>
     </a>
-    {% else %}
-    <a href="{{ url_for('step_affiliation') }}">
-      <button class="back-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        이전으로 돌아가기
-      </button>
-    </a>
-    {% endif %}
   </div>
 </div>
 {% endblock %}
 {% block script %}
 <script>
-  // custom_aff: 소속 직접입력으로 넘어온 경우 보존
-  const customAff  = '{{ custom_aff|default("") }}';
-  const affId      = {{ aff.id if aff else 0 }};
+  const customAff = '{{ custom_aff | default("") | e }}';
+  const affId     = {{ aff_id_val }};
 
   function toggleDirect() {
     const area = document.getElementById('directArea');
@@ -117,18 +115,21 @@
 
   function goCustom() {
     const val = document.getElementById('customDept').value.trim();
-    if (!val) { document.getElementById('customDept').focus(); return; }
-    // 이름 단계로 진행: dept_id=0 직접입력 하림
+    if (!val) {
+      document.getElementById('customDept').focus();
+      document.getElementById('customDept').style.borderColor = 'var(--error, #e53)';
+      return;
+    }
     const params = new URLSearchParams();
-    if (customAff) params.set('custom_aff', customAff);
-    if (affId)     params.set('aff_id', affId);
+    if (customAff) params.set('custom_aff', customAff);  // 소속 직접입력값 보존
+    if (affId)     params.set('aff_id', affId);           // DB 소속 ID 보존
     params.set('custom_dept', val);
     location.href = '/step/member/0?' + params.toString();
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     const inp = document.getElementById('customDept');
-    if (inp) inp.addEventListener('keydown', e => { if(e.key==='Enter') goCustom(); });
+    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') goCustom(); });
   });
 </script>
 {% endblock %}
