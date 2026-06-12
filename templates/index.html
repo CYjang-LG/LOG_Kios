@@ -18,6 +18,16 @@
     align-items: flex-start;
     gap: 0;
   }
+  .hero-logo {
+    width: 100%;
+    margin-bottom: 28px;
+  }
+  .hero-logo img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+  }
   .hero-clock {
     font-size: 4.5rem;
     font-weight: 700;
@@ -81,6 +91,9 @@
 {% block body %}
 <div class="hero">
   <div class="hero-inner">
+    <div class="hero-logo">
+      <img src="{{ url_for('static', filename='inha_logo.png') }}" alt="인하대학교 로고" loading="eager">
+    </div>
     <div class="hero-clock" id="clock">--:--:--</div>
     <div class="hero-date" id="kdate"></div>
     <div class="hero-title">방문 기록을 등록해 주세요</div>
