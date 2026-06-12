@@ -24,7 +24,6 @@
   .card-icon { width:46px; height:46px; background:var(--light); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--navy); }
   .direct-card .card-icon { background:rgba(58,159,165,0.1); color:var(--teal); border-radius:12px; }
   .card-label { font-size:.95rem; font-weight:700; color:var(--text); }
-  .card-sub { font-size:.78rem; color:var(--muted); }
   .direct-input-area { display:none; background:var(--white); border:1.5px solid var(--teal); border-radius:var(--radius); padding:20px; margin-top:4px; margin-bottom:16px; }
   .direct-input-area.open { display:block; }
   .direct-row { display:flex; gap:10px; }
@@ -35,6 +34,10 @@
 </style>
 {% endblock %}
 {% block body %}
+{# ── 직접입력 모드 여부 판단 ── #}
+{% set is_direct = (dept is none) %}
+{% set back_aff_id  = dept.affiliation_id if dept else 0 %}
+{% set back_aff_qs  = ('?custom_aff=' ~ custom_aff) if (is_direct and custom_aff) else '' %}
 <div class="step-page">
   <div class="step-inner">
     <div class="progress-wrap">
@@ -53,20 +56,22 @@
       <p>목록에 이름이 없으면 직접 입력할 수 있습니다</p>
     </div>
     <div class="card-grid">
-      {% for m in members %}
-      <a href="{{ url_for('step_form') }}?aff_id={{ dept.affiliation_id }}&dept_id={{ dept.id }}&member_id={{ m.id }}">
-        <div class="choice-card">
-          <div class="card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
+      {% if not is_direct %}
+        {% for m in members %}
+        <a href="{{ url_for('step_form') }}?aff_id={{ dept.affiliation_id }}&dept_id={{ dept.id }}&member_id={{ m.id }}">
+          <div class="choice-card">
+            <div class="card-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="card-label">{{ m.name }}</div>
           </div>
-          <div class="card-label">{{ m.name }}</div>
-        </div>
-      </a>
-      {% else %}
-      <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:32px 0;font-size:.95rem;">등록된 인원이 없습니다.</p>
-      {% endfor %}
+        </a>
+        {% else %}
+        <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:32px 0;font-size:.95rem;">등록된 인원이 없습니다.</p>
+        {% endfor %}
+      {% endif %}
       <div class="choice-card direct-card" onclick="toggleDirect()" id="directCard">
         <div class="card-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -76,13 +81,18 @@
         <div class="card-label">직접 입력</div>
       </div>
     </div>
-    <div class="direct-input-area" id="directArea">
+    <div class="direct-input-area{% if is_direct %} open{% endif %}" id="directArea">
       <div class="direct-row">
         <input class="custom-input" id="customName" placeholder="성함을 입력하세요" autocomplete="off">
         <button class="btn btn-primary" onclick="goCustom()">다음 →</button>
       </div>
     </div>
+    {# 뒤로가기: 직접입력 모드면 /step/department/0?custom_aff=XXX 로 #}
+    {% if is_direct %}
+    <a href="{{ url_for('step_department', aff_id=0) }}{{ back_aff_qs }}">
+    {% else %}
     <a href="{{ url_for('step_department', aff_id=dept.affiliation_id) }}">
+    {% endif %}
       <button class="back-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         이전으로 돌아가기
@@ -93,6 +103,17 @@
 {% endblock %}
 {% block script %}
 <script>
+  // 직접입력 모드: 이미 열려있으면 포커스만
+  document.addEventListener('DOMContentLoaded', () => {
+    const area = document.getElementById('directArea');
+    if (area.classList.contains('open')) {
+      document.getElementById('customName').focus();
+    }
+    document.getElementById('customName').addEventListener('keydown', e => {
+      if (e.key === 'Enter') goCustom();
+    });
+  });
+
   function toggleDirect() {
     const area = document.getElementById('directArea');
     const card = document.getElementById('directCard');
@@ -101,19 +122,25 @@
     if (!isOpen) { document.getElementById('customName').focus(); card.style.borderColor='var(--teal)'; }
     else { card.style.borderColor=''; }
   }
+
   function goCustom() {
     const val = document.getElementById('customName').value.trim();
-    if (!val) { document.getElementById('customName').focus(); return; }
-    const params = new URLSearchParams({
-      aff_id: '{{ dept.affiliation_id }}',
-      dept_id: '{{ dept.id }}',
-      custom_name: val
-    });
-    location.href = `{{ url_for('step_form') }}?` + params.toString();
+    if (!val) {
+      document.getElementById('customName').focus();
+      document.getElementById('customName').style.borderColor = 'var(--error, #e53)';
+      return;
+    }
+    const params = new URLSearchParams();
+    {% if is_direct %}
+      {% if custom_aff %}params.set('custom_aff', '{{ custom_aff }}');{% endif %}
+      {% if custom_dept %}params.set('custom_dept', '{{ custom_dept }}');{% endif %}
+      params.set('custom_name', val);
+    {% else %}
+      params.set('aff_id', '{{ dept.affiliation_id }}');
+      params.set('dept_id', '{{ dept.id }}');
+      params.set('custom_name', val);
+    {% endif %}
+    location.href = '{{ url_for("step_form") }}?' + params.toString();
   }
-  document.addEventListener('DOMContentLoaded', () => {
-    const inp = document.getElementById('customName');
-    if (inp) inp.addEventListener('keydown', e => { if(e.key==='Enter') goCustom(); });
-  });
 </script>
 {% endblock %}
