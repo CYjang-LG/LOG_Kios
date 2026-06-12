@@ -15,18 +15,25 @@
     max-width: 480px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 0;
   }
   .hero-logo {
     width: 100%;
-    margin-bottom: 28px;
+    margin-bottom: 36px;
   }
   .hero-logo img {
     width: 100%;
     height: auto;
     display: block;
     object-fit: contain;
+  }
+  .hero-date {
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+    text-align: center;
   }
   .hero-clock {
     font-size: 4.5rem;
@@ -35,25 +42,15 @@
     letter-spacing: .04em;
     font-variant-numeric: tabular-nums;
     line-height: 1;
-    margin-bottom: 8px;
-  }
-  .hero-date {
-    color: var(--muted);
-    font-size: 1rem;
     margin-bottom: 48px;
-    font-weight: 500;
-  }
-  .hero-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--navy);
-    margin-bottom: 6px;
+    text-align: center;
   }
   .hero-sub {
     color: var(--muted);
     font-size: .9rem;
     margin-bottom: 28px;
     line-height: 1.6;
+    text-align: center;
   }
   .start-btn {
     display: flex;
@@ -94,10 +91,9 @@
     <div class="hero-logo">
       <img src="{{ url_for('static', filename='inha_logo.png') }}" alt="인하대학교 로고" loading="eager">
     </div>
-    <div class="hero-clock" id="clock">--:--:--</div>
     <div class="hero-date" id="kdate"></div>
-    <div class="hero-title">방문 기록을 등록해 주세요</div>
-    <div class="hero-sub">연구소 출입 전 아래 버튼을 눌러<br>방문 정보를 입력해 주세요</div>
+    <div class="hero-clock" id="clock">--:--:--</div>
+    <div class="hero-sub">연구소 출입 전 방문정보를 입력해주세요.</div>
     <a href="{{ url_for('step_affiliation') }}" style="width:100%;display:block;">
       <button class="start-btn">
         <span>방문 기록 등록하기</span>

@@ -53,7 +53,7 @@
     </div>
     <div class="card-grid">
       {% for d in departments %}
-      <a href="{{ url_for('step_member', aff_id=aff_id, dept_id=d.id) }}">
+      <a href="{{ url_for('step_member', dept_id=d.id) }}">
         <div class="choice-card">
           <div class="card-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -82,17 +82,30 @@
         <button class="btn btn-primary" onclick="goCustom()">다음 →</button>
       </div>
     </div>
+    {% if aff %}
     <a href="{{ url_for('step_affiliation') }}">
       <button class="back-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         이전으로 돌아가기
       </button>
     </a>
+    {% else %}
+    <a href="{{ url_for('step_affiliation') }}">
+      <button class="back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        이전으로 돌아가기
+      </button>
+    </a>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
 {% block script %}
 <script>
+  // custom_aff: 소속 직접입력으로 넘어온 경우 보존
+  const customAff  = '{{ custom_aff|default("") }}';
+  const affId      = {{ aff.id if aff else 0 }};
+
   function toggleDirect() {
     const area = document.getElementById('directArea');
     const card = document.getElementById('directCard');
@@ -101,12 +114,18 @@
     if (!isOpen) { document.getElementById('customDept').focus(); card.style.borderColor='var(--teal)'; }
     else { card.style.borderColor=''; }
   }
+
   function goCustom() {
     const val = document.getElementById('customDept').value.trim();
     if (!val) { document.getElementById('customDept').focus(); return; }
-    const affId = {{ aff_id }};
-    location.href = `{{ url_for('step_member', aff_id=0, dept_id=0) }}`.replace('/0/0','/'+ affId +'/0') + `?custom_dept=${encodeURIComponent(val)}`;
+    // 이름 단계로 진행: dept_id=0 직접입력 하림
+    const params = new URLSearchParams();
+    if (customAff) params.set('custom_aff', customAff);
+    if (affId)     params.set('aff_id', affId);
+    params.set('custom_dept', val);
+    location.href = '/step/member/0?' + params.toString();
   }
+
   document.addEventListener('DOMContentLoaded', () => {
     const inp = document.getElementById('customDept');
     if (inp) inp.addEventListener('keydown', e => { if(e.key==='Enter') goCustom(); });
