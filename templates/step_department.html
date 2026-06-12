@@ -34,7 +34,6 @@
 </style>
 {% endblock %}
 {% block body %}
-{# JS에서 쓸 변수: 서버에서 미리 계산 #}
 {% set aff_id_val = aff.id if aff else 0 %}
 <div class="step-page">
   <div class="step-inner">
@@ -54,11 +53,9 @@
       <p>소속 내 해당 부서를 선택하세요</p>
     </div>
     <div class="card-grid">
-      {# DB 부서 카드: aff_id와 custom_aff 모두 전달 #}
       {% for d in departments %}
         {% if custom_aff %}
-          {# 소속 직접입력 경로: custom_aff 보존, dept_id로 이름단계 진행 #}
-          <a href="{{ url_for('step_member', dept_id=d.id) }}?custom_aff={{ custom_aff|urlencode }}">
+          <a href="{{ url_for('step_member', dept_id=d.id) }}?custom_aff={{ custom_aff | urlencode }}">
         {% else %}
           <a href="{{ url_for('step_member', dept_id=d.id) }}">
         {% endif %}
@@ -101,7 +98,8 @@
 {% endblock %}
 {% block script %}
 <script>
-  const customAff = '{{ custom_aff | default("") | e }}';
+  // tojson 사용: HTML 엔터티 인코딩 없이 안전하게 JS 문자열로 전달
+  const customAff = {{ custom_aff | default('') | tojson }};
   const affId     = {{ aff_id_val }};
 
   function toggleDirect() {
@@ -121,8 +119,8 @@
       return;
     }
     const params = new URLSearchParams();
-    if (customAff) params.set('custom_aff', customAff);  // 소속 직접입력값 보존
-    if (affId)     params.set('aff_id', affId);           // DB 소속 ID 보존
+    if (customAff) params.set('custom_aff', customAff);
+    if (affId)     params.set('aff_id', String(affId));
     params.set('custom_dept', val);
     location.href = '/step/member/0?' + params.toString();
   }

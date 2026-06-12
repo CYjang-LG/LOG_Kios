@@ -68,17 +68,16 @@
       <p>방문 목적과 시간을 입력하고 등록을 완료하세요</p>
     </div>
 
-    {# 소속/이름 빈 값 경고 #}
     <div class="info-alert" id="infoAlert"></div>
 
     <div class="summary-card">
-      <span class="info-chip{% if not affiliation %} missing{% endif %}" id="chipAff">
+      <span class="info-chip{% if not affiliation %} missing{% endif %}">
         {{ affiliation if affiliation else '소속 없음' }}
       </span>
       {% if department %}
       <span class="info-chip">{{ department }}</span>
       {% endif %}
-      <span class="info-chip{% if not name %} missing{% endif %}" id="chipName">
+      <span class="info-chip{% if not name %} missing{% endif %}">
         {{ name if name else '이름 없음' }}
       </span>
     </div>
@@ -144,6 +143,10 @@
 {% endblock %}
 {% block script %}
 <script>
+  // tojson: HTML 엔터티 없이 한글을 안전하게 JS로 전달
+  const affVal  = {{ affiliation | tojson }};
+  const nameVal = {{ name | tojson }};
+
   const chips       = document.querySelectorAll('.purpose-chip');
   const directWrap  = document.getElementById('purposeInputWrap');
   const directInput = document.getElementById('purposeDirectInput');
@@ -151,9 +154,6 @@
   const purposeErr  = document.getElementById('purposeError');
   const infoAlert   = document.getElementById('infoAlert');
 
-  // 소속/이름 빈 값 경고 표시
-  const affVal  = '{{ affiliation | e }}';
-  const nameVal = '{{ name | e }}';
   if (!affVal || !nameVal) {
     const missing = [];
     if (!affVal)  missing.push('소속');
@@ -182,7 +182,6 @@
   });
 
   document.getElementById('registerForm').addEventListener('submit', function(e) {
-    // 소속/이름 빈 값이면 제출 차단
     if (!affVal || !nameVal) {
       e.preventDefault();
       infoAlert.classList.add('show');
