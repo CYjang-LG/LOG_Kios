@@ -50,6 +50,11 @@
 </style>
 {% endblock %}
 {% block body %}
+{# data-* 속성으로 서버 값 전달 #}
+<div id="pageData"
+     data-affiliation="{{ affiliation }}"
+     data-name="{{ name }}"
+     style="display:none;"></div>
 <div class="step-page">
   <div class="step-inner">
     <div class="progress-wrap">
@@ -67,9 +72,7 @@
       <h1>방문 정보를 확인해 주세요</h1>
       <p>방문 목적과 시간을 입력하고 등록을 완료하세요</p>
     </div>
-
     <div class="info-alert" id="infoAlert"></div>
-
     <div class="summary-card">
       <span class="info-chip{% if not affiliation %} missing{% endif %}">
         {{ affiliation if affiliation else '소속 없음' }}
@@ -81,7 +84,6 @@
         {{ name if name else '이름 없음' }}
       </span>
     </div>
-
     <form method="POST" action="{{ url_for('register') }}" id="registerForm">
       <input type="hidden" name="affiliation" value="{{ affiliation }}">
       <input type="hidden" name="department"  value="{{ department }}">
@@ -143,16 +145,16 @@
 {% endblock %}
 {% block script %}
 <script>
-  // tojson: HTML 엔터티 없이 한글을 안전하게 JS로 전달
-  const affVal  = {{ affiliation | tojson }};
-  const nameVal = {{ name | tojson }};
+  const pd      = document.getElementById('pageData');
+  const affVal  = pd.dataset.affiliation || '';
+  const nameVal = pd.dataset.name || '';
 
-  const chips       = document.querySelectorAll('.purpose-chip');
-  const directWrap  = document.getElementById('purposeInputWrap');
-  const directInput = document.getElementById('purposeDirectInput');
-  const finalInput  = document.getElementById('purposeFinal');
-  const purposeErr  = document.getElementById('purposeError');
-  const infoAlert   = document.getElementById('infoAlert');
+  const chips        = document.querySelectorAll('.purpose-chip');
+  const directWrap   = document.getElementById('purposeInputWrap');
+  const directInput  = document.getElementById('purposeDirectInput');
+  const finalInput   = document.getElementById('purposeFinal');
+  const purposeErr   = document.getElementById('purposeError');
+  const infoAlert    = document.getElementById('infoAlert');
 
   if (!affVal || !nameVal) {
     const missing = [];
@@ -163,9 +165,9 @@
   }
 
   let selectedVal = '';
-  chips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      chips.forEach(c => c.classList.remove('active'));
+  chips.forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      chips.forEach(function(c) { c.classList.remove('active'); });
       chip.classList.add('active');
       selectedVal = chip.dataset.val;
       purposeErr.classList.remove('show');
@@ -195,7 +197,7 @@
       return;
     }
     if (selectedVal === '__direct__') {
-      const v = directInput.value.trim();
+      var v = directInput.value.trim();
       if (!v) {
         e.preventDefault();
         directInput.classList.add('error');
@@ -206,10 +208,10 @@
     }
   });
 
-  directInput.addEventListener('input', () => directInput.classList.remove('error'));
+  directInput.addEventListener('input', function() { directInput.classList.remove('error'); });
 
   function changeCount(d) {
-    const el = document.getElementById('extraCount');
+    var el = document.getElementById('extraCount');
     el.value = Math.max(0, Math.min(20, parseInt(el.value || 0) + d));
   }
 </script>

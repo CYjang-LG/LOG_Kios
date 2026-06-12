@@ -16,7 +16,7 @@
   .section-header h1 { font-size:1.5rem; font-weight:800; color:var(--navy); margin-bottom:4px; }
   .section-header p { color:var(--muted); font-size:.9rem; }
   .card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:12px; margin-bottom:20px; }
-  .choice-card { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:26px 14px 20px; display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer; transition:all .18s ease; text-align:center; }
+  .choice-card { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:26px 14px 20px; display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer; transition:all .18s ease; text-align:center; text-decoration:none; }
   .choice-card:hover { border-color:var(--navy); background:var(--light); transform:translateY(-2px); box-shadow:var(--shadow-md); }
   .choice-card:active { transform:translateY(0); }
   .choice-card.direct-card { border-style:dashed; }
@@ -34,7 +34,11 @@
 </style>
 {% endblock %}
 {% block body %}
-{% set aff_id_val = aff.id if aff else 0 %}
+{# data-* 속성으로 서버 값 전달 - JS 인라인 문자열 인코딩 문제 완전 차단 #}
+<div id="pageData"
+     data-custom-aff="{{ custom_aff }}"
+     data-aff-id="{{ aff.id if aff else 0 }}"
+     style="display:none;"></div>
 <div class="step-page">
   <div class="step-inner">
     <div class="progress-wrap">
@@ -55,11 +59,10 @@
     <div class="card-grid">
       {% for d in departments %}
         {% if custom_aff %}
-          <a href="{{ url_for('step_member', dept_id=d.id) }}?custom_aff={{ custom_aff | urlencode }}">
+          <a class="choice-card" href="{{ url_for('step_member', dept_id=d.id) }}?custom_aff={{ custom_aff | urlencode }}">
         {% else %}
-          <a href="{{ url_for('step_member', dept_id=d.id) }}">
+          <a class="choice-card" href="{{ url_for('step_member', dept_id=d.id) }}">
         {% endif %}
-          <div class="choice-card">
             <div class="card-icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -67,12 +70,11 @@
               </svg>
             </div>
             <div class="card-label">{{ d.name }}</div>
-          </div>
-        </a>
+          </a>
       {% else %}
         <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:32px 0;font-size:.95rem;">등록된 부서가 없습니다.</p>
       {% endfor %}
-      <div class="choice-card direct-card" onclick="toggleDirect()" id="directCard">
+      <div class="choice-card direct-card" id="directCard">
         <div class="card-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -84,7 +86,7 @@
     <div class="direct-input-area" id="directArea">
       <div class="direct-row">
         <input class="custom-input" id="customDept" placeholder="부서명을 입력하세요" autocomplete="off">
-        <button class="btn btn-primary" onclick="goCustom()">다음 →</button>
+        <button class="btn btn-primary" id="btnNext">다음 →</button>
       </div>
     </div>
     <a href="{{ url_for('step_affiliation') }}">
@@ -98,24 +100,32 @@
 {% endblock %}
 {% block script %}
 <script>
-  // tojson 사용: HTML 엔터티 인코딩 없이 안전하게 JS 문자열로 전달
-  const customAff = {{ custom_aff | default('') | tojson }};
-  const affId     = {{ aff_id_val }};
+  // data-* 속성에서 읽기: 한글/특수문자 인코딩 문제 없음
+  const pd        = document.getElementById('pageData');
+  const customAff = pd.dataset.customAff || '';
+  const affId     = parseInt(pd.dataset.affId) || 0;
 
-  function toggleDirect() {
-    const area = document.getElementById('directArea');
-    const card = document.getElementById('directCard');
-    const isOpen = area.classList.contains('open');
-    area.classList.toggle('open');
-    if (!isOpen) { document.getElementById('customDept').focus(); card.style.borderColor='var(--teal)'; }
-    else { card.style.borderColor=''; }
-  }
+  const directCard = document.getElementById('directCard');
+  const directArea = document.getElementById('directArea');
+  const customDept = document.getElementById('customDept');
+  const btnNext    = document.getElementById('btnNext');
+
+  directCard.addEventListener('click', function() {
+    const isOpen = directArea.classList.contains('open');
+    directArea.classList.toggle('open');
+    if (!isOpen) {
+      customDept.focus();
+      directCard.style.borderColor = 'var(--teal)';
+    } else {
+      directCard.style.borderColor = '';
+    }
+  });
 
   function goCustom() {
-    const val = document.getElementById('customDept').value.trim();
+    const val = customDept.value.trim();
     if (!val) {
-      document.getElementById('customDept').focus();
-      document.getElementById('customDept').style.borderColor = 'var(--error, #e53)';
+      customDept.focus();
+      customDept.style.borderColor = 'var(--error, #e53)';
       return;
     }
     const params = new URLSearchParams();
@@ -125,9 +135,12 @@
     location.href = '/step/member/0?' + params.toString();
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const inp = document.getElementById('customDept');
-    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') goCustom(); });
+  btnNext.addEventListener('click', goCustom);
+  customDept.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') goCustom();
+  });
+  customDept.addEventListener('input', function() {
+    customDept.style.borderColor = '';
   });
 </script>
 {% endblock %}
