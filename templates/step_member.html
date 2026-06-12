@@ -4,29 +4,30 @@
 <style>
   .step-page { min-height:calc(100vh - 56px); background:var(--bg); padding:32px 24px 40px; display:flex; flex-direction:column; align-items:center; }
   .step-inner { width:100%; max-width:760px; }
-  .progress-bar { display:flex; align-items:center; gap:0; margin-bottom:32px; background:var(--white); border:1px solid var(--border); border-radius:50px; padding:8px 20px; width:fit-content; }
+  .progress-wrap { display:flex; justify-content:center; margin-bottom:36px; }
+  .progress-bar { display:flex; align-items:center; background:var(--white); border:1px solid var(--border); border-radius:50px; padding:8px 20px; gap:0; }
   .prog-step { display:flex; align-items:center; gap:8px; font-size:.82rem; font-weight:600; color:var(--muted); padding:0 10px; }
-  .prog-step.active { color:var(--navy); }
-  .prog-step.done { color:var(--teal); }
+  .prog-step.active { color:var(--navy); } .prog-step.done { color:var(--teal); }
   .prog-dot { width:24px; height:24px; border-radius:50%; background:var(--border); color:var(--muted); display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; }
   .prog-step.active .prog-dot { background:var(--navy); color:#fff; }
   .prog-step.done .prog-dot { background:var(--teal); color:#fff; }
-  .prog-sep { width:20px; height:1px; background:var(--border); }
-  .section-header { margin-bottom:20px; }
+  .prog-sep { width:24px; height:1px; background:var(--border); }
+  .section-header { margin-bottom:24px; }
   .section-header h1 { font-size:1.5rem; font-weight:800; color:var(--navy); margin-bottom:4px; }
   .section-header p { color:var(--muted); font-size:.9rem; }
-  .breadcrumb { display:flex; align-items:center; gap:8px; margin-bottom:22px; flex-wrap:wrap; }
-  .bc-chip { display:inline-flex; align-items:center; gap:5px; background:var(--light); color:var(--navy); border:1px solid rgba(13,43,107,0.15); border-radius:50px; padding:5px 12px; font-size:.82rem; font-weight:700; }
-  .bc-arrow { color:var(--muted); font-size:.85rem; }
-  .card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:12px; margin-bottom:28px; }
-  .choice-card { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:24px 12px 18px; display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer; transition:all .18s ease; text-align:center; }
-  .choice-card:hover { border-color:var(--navy); background:var(--light); transform:translateY(-3px); box-shadow:var(--shadow-md); }
+  .card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; margin-bottom:20px; }
+  .choice-card { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:24px 14px 18px; display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer; transition:all .18s ease; text-align:center; }
+  .choice-card:hover { border-color:var(--navy); background:var(--light); transform:translateY(-2px); box-shadow:var(--shadow-md); }
   .choice-card:active { transform:translateY(0); }
-  .card-icon { width:48px; height:48px; background:var(--light); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--navy); }
-  .card-label { font-size:1rem; font-weight:700; color:var(--text); }
-  .custom-box { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:20px 22px; margin-bottom:16px; }
-  .custom-box-label { font-size:.82rem; font-weight:700; color:var(--muted); margin-bottom:10px; letter-spacing:.03em; }
-  .custom-row { display:flex; gap:10px; }
+  .choice-card.direct-card { border-style:dashed; }
+  .choice-card.direct-card:hover { border-color:var(--teal); background:rgba(58,159,165,0.05); }
+  .card-icon { width:46px; height:46px; background:var(--light); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--navy); }
+  .direct-card .card-icon { background:rgba(58,159,165,0.1); color:var(--teal); border-radius:12px; }
+  .card-label { font-size:.95rem; font-weight:700; color:var(--text); }
+  .card-sub { font-size:.78rem; color:var(--muted); }
+  .direct-input-area { display:none; background:var(--white); border:1.5px solid var(--teal); border-radius:var(--radius); padding:20px; margin-top:4px; margin-bottom:16px; }
+  .direct-input-area.open { display:block; }
+  .direct-row { display:flex; gap:10px; }
   .custom-input { flex:1; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:13px 15px; font-size:1rem; color:var(--text); background:var(--bg); outline:none; font-family:inherit; transition:border-color .2s; }
   .custom-input:focus { border-color:var(--navy); background:var(--white); }
   .back-btn { display:flex; align-items:center; gap:6px; color:var(--muted); font-size:.9rem; font-weight:600; cursor:pointer; background:none; border:none; padding:8px 0; transition:color .2s; }
@@ -36,52 +37,56 @@
 {% block body %}
 <div class="step-page">
   <div class="step-inner">
-    <div class="progress-bar">
-      <div class="prog-step done"><div class="prog-dot">✓</div> 소속</div>
-      <div class="prog-sep"></div>
-      <div class="prog-step done"><div class="prog-dot">✓</div> 부서</div>
-      <div class="prog-sep"></div>
-      <div class="prog-step active"><div class="prog-dot">3</div> 이름</div>
-      <div class="prog-sep"></div>
-      <div class="prog-step"><div class="prog-dot">4</div> 확인</div>
+    <div class="progress-wrap">
+      <div class="progress-bar">
+        <div class="prog-step done"><div class="prog-dot">✓</div> 소속</div>
+        <div class="prog-sep"></div>
+        <div class="prog-step done"><div class="prog-dot">✓</div> 부서</div>
+        <div class="prog-sep"></div>
+        <div class="prog-step active"><div class="prog-dot">3</div> 이름</div>
+        <div class="prog-sep"></div>
+        <div class="prog-step"><div class="prog-dot">4</div> 확인</div>
+      </div>
     </div>
     <div class="section-header">
       <h1>이름을 선택해 주세요</h1>
-      <p>본인 이름을 선택하거나 직접 입력하세요</p>
-    </div>
-    <div class="breadcrumb">
-      <div class="bc-chip">{{ dept.aff_name }}</div>
-      <span class="bc-arrow">›</span>
-      <div class="bc-chip">{{ dept.name }}</div>
+      <p>목록에 이름이 없으면 직접 입력할 수 있습니다</p>
     </div>
     <div class="card-grid">
       {% for m in members %}
-      <a href="{{ url_for('step_form', aff_id=dept.affiliation_id, dept_id=dept.id, member_id=m.id) }}">
+      <a href="{{ url_for('step_form') }}?aff_id={{ aff_id }}&dept_id={{ dept_id }}&member_id={{ m.id }}{% if custom_dept %}&custom_dept={{ custom_dept }}{% endif %}">
         <div class="choice-card">
           <div class="card-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
           <div class="card-label">{{ m.name }}</div>
+          {% if m.role %}<div class="card-sub">{{ m.role }}</div>{% endif %}
         </div>
       </a>
       {% else %}
-      <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:32px 0;">등록된 인원이 없습니다.<br>직접 입력해 주세요.</p>
+      <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:32px 0;font-size:.95rem;">등록된 인원이 없습니다.</p>
       {% endfor %}
+      <div class="choice-card direct-card" onclick="toggleDirect()" id="directCard">
+        <div class="card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </div>
+        <div class="card-label">직접 입력</div>
+      </div>
     </div>
-    <div class="custom-box">
-      <div class="custom-box-label">✏ 직접 입력</div>
-      <div class="custom-row">
-        <input class="custom-input" id="customName" placeholder="이름을 입력하세요" autocomplete="off">
+    <div class="direct-input-area" id="directArea">
+      <div class="direct-row">
+        <input class="custom-input" id="customName" placeholder="성함을 입력하세요" autocomplete="off">
         <button class="btn btn-primary" onclick="goCustom()">다음 →</button>
       </div>
     </div>
-    <a href="{{ url_for('step_department', aff_id=dept.affiliation_id) }}">
+    <a href="{{ url_for('step_department', aff_id=aff_id) }}">
       <button class="back-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        부서 선택으로 돌아가기
+        이전으로 돌아가기
       </button>
     </a>
   </div>
@@ -89,11 +94,28 @@
 {% endblock %}
 {% block script %}
 <script>
+  function toggleDirect() {
+    const area = document.getElementById('directArea');
+    const card = document.getElementById('directCard');
+    const isOpen = area.classList.contains('open');
+    area.classList.toggle('open');
+    if (!isOpen) { document.getElementById('customName').focus(); card.style.borderColor='var(--teal)'; }
+    else { card.style.borderColor=''; }
+  }
   function goCustom() {
     const val = document.getElementById('customName').value.trim();
     if (!val) { document.getElementById('customName').focus(); return; }
-    location.href = `{{ url_for('step_form') }}?aff_id={{ dept.affiliation_id }}&dept_id={{ dept.id }}&custom_name=${encodeURIComponent(val)}`;
+    const params = new URLSearchParams({
+      aff_id: '{{ aff_id }}',
+      dept_id: '{{ dept_id }}',
+      custom_name: val,
+      {% if custom_dept %}custom_dept: '{{ custom_dept }}'{% endif %}
+    });
+    location.href = `{{ url_for('step_form') }}?` + params.toString();
   }
-  document.getElementById('customName').addEventListener('keydown', e => { if(e.key==='Enter') goCustom(); });
+  document.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById('customName');
+    if (inp) inp.addEventListener('keydown', e => { if(e.key==='Enter') goCustom(); });
+  });
 </script>
 {% endblock %}
