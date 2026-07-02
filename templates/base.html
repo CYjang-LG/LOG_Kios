@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}의과학연구소 출입자 기록{% endblock %}</title>
   <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#0D2B6B">
+  <meta name="theme-color" content="#1a2744">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,41 +15,44 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      /* 브랜드 컬러 */
-      --navy:        #0D2B6B;
-      --navy-hover:  #1a3f8f;
-      --navy-light:  #e8edf7;
-      --teal:        #0891b2;
-      --teal-hover:  #0e7490;
-      --teal-light:  #e0f2fe;
-      /* 서페이스 */
-      --bg:          #f8fafc;
-      --surface:     #ffffff;
-      --surface-2:   #f1f5f9;
-      --border:      #e2e8f0;
-      --border-strong: #cbd5e1;
+      /* 업센트 컴러 - 단일 accent */
+      --navy:          #1a2744;
+      --navy-hover:    #253660;
+      --navy-light:    #eef1f8;
+      --navy-mid:      #c8d1e8;
+
+      /* 서페이스 - 완전 flat */
+      --bg:            #f5f5f5;
+      --surface:       #ffffff;
+      --surface-2:     #eeeeee;
+      --border:        #d4d4d4;
+      --border-strong: #b0b0b0;
+
       /* 텍스트 */
-      --text:        #0f172a;
-      --text-muted:  #64748b;
-      --text-faint:  #94a3b8;
+      --text:          #111111;
+      --text-muted:    #555555;
+      --text-faint:    #999999;
+
       /* 상태 */
-      --error:       #dc2626;
-      --error-light: #fef2f2;
-      --success:     #16a34a;
-      --success-light: #f0fdf4;
+      --error:         #cc2200;
+      --error-light:   #fff0ee;
+      --success:       #1a7a3c;
+      --success-light: #eefaf2;
+
       /* 레이아웃 */
-      --radius-xs:   8px;
-      --radius-sm:   12px;
-      --radius:      16px;
-      --radius-lg:   20px;
-      --radius-xl:   24px;
-      --shadow-sm:   0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
-      --shadow:      0 4px 16px rgba(15,23,42,0.08), 0 2px 6px rgba(15,23,42,0.04);
-      --shadow-lg:   0 12px 40px rgba(15,23,42,0.12), 0 4px 12px rgba(15,23,42,0.06);
+      --radius-xs:  6px;
+      --radius-sm:  8px;
+      --radius:     10px;
+      --radius-lg:  12px;
+      --radius-xl:  14px;
+
+      /* 그림자 - 최소화 */
+      --shadow-sm:  0 1px 0 var(--border);
+
       /* 헤더 */
-      --header-h:    68px;
+      --header-h:   64px;
       /* 하단바 */
-      --footer-h:    80px;
+      --footer-h:   76px;
     }
     html, body { height: 100%; }
     body {
@@ -69,44 +72,49 @@
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       height: var(--header-h);
       background: var(--navy);
+      border-bottom: 2px solid #0d1729;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 32px;
-      box-shadow: 0 2px 12px rgba(13,43,107,0.20);
+      padding: 0 28px;
     }
     .top-bar-logo {
       display: flex; align-items: center; gap: 12px;
       color: #fff;
     }
     .top-bar-logo-icon {
-      width: 38px; height: 38px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 10px;
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.20);
+      border-radius: var(--radius-sm);
       display: flex; align-items: center; justify-content: center;
     }
     .top-bar-logo-text { line-height: 1.25; }
-    .top-bar-logo-text .institution { font-size: .75rem; font-weight: 500; opacity: .75; letter-spacing: .04em; }
-    .top-bar-logo-text .dept { font-size: 1rem; font-weight: 700; letter-spacing: .01em; }
-    .top-bar-right { display: flex; align-items: center; gap: 16px; }
+    .top-bar-logo-text .institution { font-size: .72rem; font-weight: 500; opacity: .65; letter-spacing: .06em; }
+    .top-bar-logo-text .dept { font-size: .98rem; font-weight: 700; letter-spacing: .01em; }
+    .top-bar-right { display: flex; align-items: center; gap: 14px; }
     .top-bar-time {
-      color: rgba(255,255,255,0.85);
-      font-size: 1.1rem;
+      color: rgba(255,255,255,0.80);
+      font-size: 1.05rem;
       font-weight: 700;
       font-variant-numeric: tabular-nums;
-      letter-spacing: .04em;
+      letter-spacing: .06em;
     }
     .admin-btn {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.22);
-      color: rgba(255,255,255,0.85);
-      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.30);
+      color: rgba(255,255,255,0.75);
+      padding: 7px 14px;
       border-radius: var(--radius-xs);
-      font-size: .82rem;
+      font-size: .80rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all .18s;
+      transition: border-color .15s, color .15s, background .15s;
       letter-spacing: .02em;
     }
-    .admin-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
+    .admin-btn:hover {
+      border-color: rgba(255,255,255,0.70);
+      color: #fff;
+      background: rgba(255,255,255,0.08);
+    }
 
     /* ── 페이지 래퍼 ── */
     .page-wrap {
@@ -119,145 +127,141 @@
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       border: none; cursor: pointer;
       border-radius: var(--radius-sm);
-      font-size: 1rem; font-weight: 700;
-      padding: 14px 28px;
-      transition: all .18s ease;
+      font-size: .95rem; font-weight: 700;
+      padding: 12px 24px;
+      transition: background .15s, color .15s, border-color .15s;
       font-family: inherit;
       letter-spacing: .01em;
     }
     .btn-primary {
-      background: var(--navy); color: #fff;
-      box-shadow: 0 4px 14px rgba(13,43,107,0.25);
+      background: var(--navy);
+      color: #fff;
+      border: 2px solid var(--navy);
     }
-    .btn-primary:hover { background: var(--navy-hover); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13,43,107,0.30); }
-    .btn-primary:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(13,43,107,0.20); }
+    .btn-primary:hover { background: var(--navy-hover); border-color: var(--navy-hover); }
+    .btn-primary:active { background: #111d36; border-color: #111d36; }
     .btn-secondary {
-      background: var(--surface); color: var(--text-muted);
-      border: 1.5px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text-muted);
+      border: 2px solid var(--border-strong);
     }
     .btn-secondary:hover { background: var(--surface-2); color: var(--navy); border-color: var(--navy); }
-    .btn-teal { background: var(--teal); color: #fff; box-shadow: 0 4px 14px rgba(8,145,178,0.25); }
-    .btn-teal:hover { background: var(--teal-hover); }
     .btn-lg {
-      padding: 20px 40px;
-      font-size: 1.15rem;
+      padding: 16px 36px;
+      font-size: 1.1rem;
       border-radius: var(--radius);
-      min-height: 68px;
+      min-height: 60px;
     }
     .btn-xl {
-      padding: 24px 48px;
-      font-size: 1.25rem;
+      padding: 20px 40px;
+      font-size: 1.2rem;
       border-radius: var(--radius-lg);
-      min-height: 76px;
+      min-height: 70px;
       width: 100%;
     }
-    .btn-danger { background: var(--error); color: #fff; }
-    .btn-danger:hover { background: #b91c1c; }
-    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--error); color: #fff; border: 2px solid var(--error); }
+    .btn-danger:hover { background: #aa1c00; border-color: #aa1c00; }
+    .btn-success { background: var(--success); color: #fff; border: 2px solid var(--success); }
 
     /* ── 플래시 메시지 ── */
-    .flash { padding: 16px 22px; border-radius: var(--radius-sm); margin-bottom: 16px; font-weight: 600; font-size: 1rem; }
-    .flash-success { background: var(--success-light); border: 1.5px solid #86efac; color: #166534; }
-    .flash-error   { background: var(--error-light); border: 1.5px solid #fca5a5; color: #991b1b; }
+    .flash { padding: 14px 20px; border-radius: var(--radius-sm); margin-bottom: 14px; font-weight: 600; font-size: .95rem; }
+    .flash-success { background: var(--success-light); border: 1.5px solid #7dd09a; color: #14532d; }
+    .flash-error   { background: var(--error-light);   border: 1.5px solid #f0a090; color: #991100; }
 
     /* ── 프로그레스 스텝 바 ── */
     .step-progress {
       background: var(--surface);
       border-bottom: 1.5px solid var(--border);
-      padding: 0 32px;
-      height: 60px;
+      padding: 0 28px;
+      height: 54px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0;
     }
     .sp-item {
-      display: flex; align-items: center; gap: 10px;
-      font-size: .88rem; font-weight: 600;
+      display: flex; align-items: center; gap: 8px;
+      font-size: .84rem; font-weight: 600;
       color: var(--text-faint);
-      padding: 0 14px;
+      padding: 0 12px;
       white-space: nowrap;
     }
     .sp-item.active { color: var(--navy); }
-    .sp-item.done   { color: var(--teal); }
+    .sp-item.done   { color: var(--text-muted); }
     .sp-dot {
-      width: 28px; height: 28px;
+      width: 26px; height: 26px;
       border-radius: 50%;
       background: var(--surface-2);
       border: 2px solid var(--border-strong);
       color: var(--text-faint);
       display: flex; align-items: center; justify-content: center;
-      font-size: .78rem; font-weight: 800;
+      font-size: .74rem; font-weight: 800;
       flex-shrink: 0;
-      transition: all .2s;
+      transition: background .15s, border-color .15s, color .15s;
     }
     .sp-item.active .sp-dot {
-      background: var(--navy); border-color: var(--navy); color: #fff;
-      box-shadow: 0 0 0 4px var(--navy-light);
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
     }
     .sp-item.done .sp-dot {
-      background: var(--teal); border-color: var(--teal); color: #fff;
+      background: var(--surface-2);
+      border-color: var(--border-strong);
+      color: var(--text-muted);
     }
     .sp-sep {
-      width: 32px; height: 2px;
+      width: 28px; height: 1.5px;
       background: var(--border);
       flex-shrink: 0;
     }
-    .sp-item.done + .sp-sep { background: var(--teal); }
 
-    /* ── 키오스크 선택 카드 공통 ── */
+    /* ── 키오스크 선택 카드 ── */
     .kiosk-card {
       background: var(--surface);
       border: 2px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 28px 20px 24px;
+      padding: 24px 16px 20px;
       display: flex; flex-direction: column;
-      align-items: center; gap: 14px;
+      align-items: center; gap: 12px;
       cursor: pointer;
-      transition: all .18s ease;
+      transition: border-color .15s, background .15s;
       text-align: center;
-      min-height: 140px;
+      min-height: 130px;
       justify-content: center;
-      box-shadow: var(--shadow-sm);
     }
     .kiosk-card:hover {
       border-color: var(--navy);
       background: var(--navy-light);
-      transform: translateY(-3px);
-      box-shadow: var(--shadow);
     }
-    .kiosk-card:active { transform: translateY(-1px); }
+    .kiosk-card:active {
+      background: var(--navy-mid);
+    }
     .kiosk-card.selected {
       border-color: var(--navy);
+      border-width: 2.5px;
       background: var(--navy-light);
-      box-shadow: 0 0 0 4px rgba(13,43,107,0.12), var(--shadow);
     }
     .kiosk-card.direct {
       border-style: dashed;
       border-color: var(--border-strong);
     }
-    .kiosk-card.direct:hover {
-      border-color: var(--teal);
-      background: var(--teal-light);
-    }
+    .kiosk-card.direct:hover,
     .kiosk-card.direct.open {
-      border-color: var(--teal);
-      background: var(--teal-light);
+      border-color: var(--navy);
+      background: var(--navy-light);
+      border-style: solid;
     }
     .kc-icon {
-      width: 52px; height: 52px;
+      width: 48px; height: 48px;
       border-radius: var(--radius-sm);
       background: var(--navy-light);
+      border: 1.5px solid var(--navy-mid);
       color: var(--navy);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .kiosk-card.direct .kc-icon {
-      background: var(--teal-light);
-      color: var(--teal);
-    }
     .kc-label {
-      font-size: 1rem; font-weight: 700;
+      font-size: .95rem; font-weight: 700;
       color: var(--text);
       line-height: 1.3;
     }
@@ -266,9 +270,9 @@
     .direct-area {
       display: none;
       background: var(--surface);
-      border: 2px solid var(--teal);
+      border: 2px solid var(--border-strong);
       border-radius: var(--radius);
-      padding: 20px;
+      padding: 18px;
       margin-top: 8px;
     }
     .direct-area.open { display: block; }
@@ -277,14 +281,14 @@
       flex: 1;
       border: 2px solid var(--border-strong);
       border-radius: var(--radius-sm);
-      padding: 16px 18px;
-      font-size: 1.05rem;
+      padding: 14px 16px;
+      font-size: 1rem;
       font-weight: 500;
       color: var(--text);
       background: var(--bg);
       outline: none;
       font-family: inherit;
-      transition: border-color .2s;
+      transition: border-color .15s;
     }
     .kiosk-input:focus { border-color: var(--navy); background: #fff; }
     .kiosk-input.error { border-color: var(--error); }
@@ -295,18 +299,17 @@
       bottom: 0; left: 0; right: 0;
       height: var(--footer-h);
       background: var(--surface);
-      border-top: 1.5px solid var(--border);
+      border-top: 2px solid var(--border);
       display: flex; align-items: center;
-      padding: 0 32px;
+      padding: 0 28px;
       gap: 16px;
       z-index: 50;
-      box-shadow: 0 -4px 20px rgba(15,23,42,0.06);
     }
     .bottom-action .btn-back {
       display: flex; align-items: center; gap: 8px;
-      color: var(--text-muted); font-size: .95rem; font-weight: 600;
+      color: var(--text-muted); font-size: .92rem; font-weight: 600;
       background: none; border: none; cursor: pointer;
-      padding: 12px 0; transition: color .2s;
+      padding: 10px 0; transition: color .15s;
       flex-shrink: 0;
     }
     .bottom-action .btn-back:hover { color: var(--navy); }
@@ -317,7 +320,7 @@
   <header class="top-bar">
     <div class="top-bar-logo">
       <div class="top-bar-logo-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
           <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
           <polyline points="9 22 9 12 15 12 15 22"/>
         </svg>
@@ -339,7 +342,7 @@
 
   {% with messages = get_flashed_messages(with_categories=True) %}
     {% if messages %}
-      <div style="position:fixed;top:76px;left:50%;transform:translateX(-50%);z-index:9999;width:90%;max-width:520px;">
+      <div style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:9999;width:90%;max-width:520px;">
         {% for cat, msg in messages %}
           <div class="flash flash-{{ 'error' if cat=='error' else 'success' }}">{{ msg }}</div>
         {% endfor %}
@@ -363,7 +366,7 @@
     tickTop(); setInterval(tickTop, 1000);
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.btn, .kiosk-card').forEach(el => {
-        el.addEventListener('touchstart', () => { el.style.opacity = '.8'; }, {passive:true});
+        el.addEventListener('touchstart', () => { el.style.opacity = '.85'; }, {passive:true});
         el.addEventListener('touchend',   () => { el.style.opacity = '1'; });
       });
     });
