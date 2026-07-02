@@ -2,111 +2,128 @@
 {% block title %}의과학연구소 출입자 기록{% endblock %}
 {% block extra_style %}
 <style>
-  .hero {
-    min-height: calc(100vh - 56px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--white);
-    padding: 0 24px;
-  }
-  .hero-inner {
-    width: 100%;
-    max-width: 480px;
+  .kiosk-home {
+    min-height: calc(100vh - var(--header-h));
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    padding: 40px 32px;
     gap: 0;
   }
-  .hero-logo {
-    width: 100%;
-    margin-bottom: 36px;
-  }
-  .hero-logo img {
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: contain;
-  }
-  .hero-date {
-    color: var(--muted);
-    font-size: 1rem;
-    font-weight: 500;
-    margin-bottom: 6px;
+  .home-logo-wrap {
+    margin-bottom: 32px;
     text-align: center;
   }
-  .hero-clock {
-    font-size: 4.5rem;
-    font-weight: 700;
+  .home-logo-wrap img {
+    max-width: 240px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  .home-time-block {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .home-date {
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 8px;
+    letter-spacing: .02em;
+  }
+  .home-clock {
+    font-size: 5rem;
+    font-weight: 900;
     color: var(--navy);
     letter-spacing: .04em;
     font-variant-numeric: tabular-nums;
     line-height: 1;
-    margin-bottom: 48px;
-    text-align: center;
   }
-  .hero-sub {
-    color: var(--muted);
-    font-size: .9rem;
-    margin-bottom: 28px;
-    line-height: 1.6;
+  .home-divider {
+    width: 60px; height: 4px;
+    background: linear-gradient(90deg, var(--navy), var(--teal));
+    border-radius: 4px;
+    margin: 24px auto 32px;
+  }
+  .home-sub {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    margin-bottom: 40px;
     text-align: center;
+    line-height: 1.7;
+    max-width: 360px;
   }
   .start-btn {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    max-width: 480px;
     background: var(--navy);
     color: #fff;
     border: none;
     cursor: pointer;
-    font-size: 1.05rem;
-    font-weight: 700;
-    padding: 22px 28px;
-    border-radius: var(--radius);
-    transition: background .18s, transform .15s;
+    font-size: 1.2rem;
+    font-weight: 800;
+    padding: 26px 32px;
+    border-radius: var(--radius-lg);
+    transition: all .2s;
     font-family: inherit;
+    box-shadow: 0 8px 32px rgba(13,43,107,0.28);
+    letter-spacing: .01em;
   }
-  .start-btn:hover { background: var(--navy2); transform: translateY(-2px); }
+  .start-btn:hover {
+    background: var(--navy-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(13,43,107,0.34);
+  }
   .start-btn:active { transform: translateY(0); }
   .start-btn-arrow {
-    width: 36px; height: 36px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
-  .bottom-bar {
+  .accent-bar {
     position: fixed;
     bottom: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--navy), var(--teal));
+    height: 5px;
+    background: linear-gradient(90deg, var(--navy), var(--teal), var(--navy));
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
 </style>
 {% endblock %}
 {% block body %}
-<div class="hero">
-  <div class="hero-inner">
-    <div class="hero-logo">
-      <img src="{{ url_for('static', filename='inha_logo.png') }}" alt="인하대학교 로고" loading="eager">
-    </div>
-    <div class="hero-date" id="kdate"></div>
-    <div class="hero-clock" id="clock">--:--:--</div>
-    <div class="hero-sub">연구소 출입 전 방문정보를 입력해주세요.</div>
-    <a href="{{ url_for('step_affiliation') }}" style="width:100%;display:block;">
-      <button class="start-btn">
-        <span>방문 기록 등록하기</span>
-        <div class="start-btn-arrow">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </div>
-      </button>
-    </a>
+<div class="kiosk-home">
+  <div class="home-logo-wrap">
+    <img src="{{ url_for('static', filename='inha_logo.png') }}" alt="인하대학교 로고" loading="eager">
   </div>
+  <div class="home-time-block">
+    <div class="home-date" id="kdate"></div>
+    <div class="home-clock" id="clock">--:--:--</div>
+  </div>
+  <div class="home-divider"></div>
+  <p class="home-sub">연구소 출입 전 방문 정보를 등록해 주세요.</p>
+  <a href="{{ url_for('step_affiliation') }}" style="width:100%;max-width:480px;display:block;">
+    <button class="start-btn">
+      <span>방문 기록 등록하기</span>
+      <div class="start-btn-arrow">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </button>
+  </a>
 </div>
-<div class="bottom-bar"></div>
+<div class="accent-bar"></div>
 {% endblock %}
 {% block script %}
 <script>

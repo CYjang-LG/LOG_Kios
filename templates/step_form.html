@@ -1,146 +1,249 @@
 {% extends 'base.html' %}
-{% block title %}방문 기록 등록{% endblock %}
+{% block title %}방문 정보 입력{% endblock %}
 {% block extra_style %}
 <style>
-  .step-page { min-height:calc(100vh - 56px); background:var(--bg); padding:32px 24px 40px; display:flex; flex-direction:column; align-items:center; }
-  .step-inner { width:100%; max-width:700px; }
-  .progress-wrap { display:flex; justify-content:center; margin-bottom:36px; }
-  .progress-bar { display:flex; align-items:center; background:var(--white); border:1px solid var(--border); border-radius:50px; padding:8px 20px; gap:0; }
-  .prog-step { display:flex; align-items:center; gap:8px; font-size:.82rem; font-weight:600; color:var(--muted); padding:0 10px; }
-  .prog-step.active { color:var(--navy); } .prog-step.done { color:var(--teal); }
-  .prog-dot { width:24px; height:24px; border-radius:50%; background:var(--border); color:var(--muted); display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; }
-  .prog-step.active .prog-dot { background:var(--navy); color:#fff; }
-  .prog-step.done .prog-dot { background:var(--teal); color:#fff; }
-  .prog-sep { width:24px; height:1px; background:var(--border); }
-  .section-header { margin-bottom:20px; }
-  .section-header h1 { font-size:1.4rem; font-weight:800; color:var(--navy); margin-bottom:4px; }
-  .section-header p { color:var(--muted); font-size:.9rem; }
-  .summary-card { background:var(--light); border:1px solid rgba(13,43,107,0.1); border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:20px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  .info-chip { background:var(--white); border:1.5px solid var(--border); border-radius:50px; padding:5px 14px; font-size:.85rem; font-weight:700; color:var(--navy); }
-  .info-chip.missing { border-color:#e53; color:#e53; background:#fff5f5; }
-  .form-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:28px 26px; margin-bottom:14px; }
-  .form-section-title { font-size:.78rem; font-weight:800; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-bottom:18px; }
-  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  .form-group { margin-bottom:16px; }
-  .form-group:last-child { margin-bottom:0; }
-  .form-label { display:block; margin-bottom:6px; font-size:.83rem; font-weight:700; color:var(--muted); }
-  .form-label .req { color:var(--navy); }
-  .form-control { width:100%; background:var(--bg); border:1.5px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-size:1rem; padding:12px 14px; outline:none; transition:border-color .2s; -webkit-appearance:none; font-family:inherit; }
-  .form-control:focus { border-color:var(--navy); background:var(--white); }
-  .form-control.error { border-color:#e53; }
-  .time-row { display:grid; grid-template-columns:1fr 20px 1fr; gap:8px; align-items:center; }
-  .time-sep { color:var(--muted); text-align:center; font-weight:700; font-size:.9rem; }
-  .purpose-grid { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
-  .purpose-chip { padding:9px 16px; border-radius:50px; background:var(--bg); border:1.5px solid var(--border); color:var(--muted); font-size:.88rem; cursor:pointer; transition:all .18s; font-weight:600; font-family:inherit; }
-  .purpose-chip:hover { border-color:var(--navy); color:var(--navy); }
-  .purpose-chip.active { background:var(--navy); border-color:var(--navy); color:#fff; }
-  .purpose-error { display:none; color:#e53; font-size:.82rem; margin-top:4px; font-weight:600; }
-  .purpose-error.show { display:block; }
-  .purpose-input-wrap { display:none; margin-top:6px; }
-  .purpose-input-wrap.open { display:block; }
-  .extra-row { display:flex; align-items:center; gap:12px; }
-  .cnt-btn { width:40px; height:40px; border-radius:50%; background:var(--bg); border:1.5px solid var(--border); color:var(--navy); font-size:1.3rem; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .18s; font-family:inherit; }
-  .cnt-btn:hover { background:var(--navy); color:#fff; border-color:var(--navy); }
-  .extra-count { width:56px; text-align:center; font-size:1.05rem; font-weight:700; }
-  .extra-unit { color:var(--muted); font-size:.88rem; }
-  .form-actions { display:flex; gap:12px; margin-top:4px; }
-  .form-actions .btn { flex:1; }
-  .info-alert { background:#fff5f5; border:1.5px solid #e53; border-radius:var(--radius-sm); padding:12px 16px; margin-bottom:16px; color:#c00; font-size:.9rem; font-weight:600; display:none; }
-  .info-alert.show { display:block; }
+  .kiosk-page {
+    min-height: calc(100vh - var(--header-h) - var(--footer-h));
+    padding: 0 32px 24px;
+    display: flex; flex-direction: column;
+  }
+  .page-header {
+    padding: 28px 0 20px;
+    border-bottom: 1.5px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .page-title { font-size: 1.6rem; font-weight: 900; color: var(--navy); margin-bottom: 4px; letter-spacing: -.01em; }
+  .page-sub   { font-size: .95rem; color: var(--text-muted); }
+
+  /* 요약 칩 */
+  .summary-bar {
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .summary-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 14px; border-radius: 50px;
+    font-size: .85rem; font-weight: 700;
+    background: var(--navy-light); color: var(--navy);
+  }
+  .summary-chip.missing {
+    background: var(--error-light); color: var(--error);
+    border: 1.5px solid #fca5a5;
+  }
+
+  /* 폼 카드 */
+  .form-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .form-section-label {
+    font-size: .78rem; font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-label {
+    display: block; margin-bottom: 7px;
+    font-size: .88rem; font-weight: 700;
+    color: var(--text-muted);
+  }
+  .form-label .req { color: var(--navy); }
+  .form-control {
+    width: 100%;
+    background: var(--bg);
+    border: 2px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 1rem; font-weight: 500;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color .2s, background .2s;
+    -webkit-appearance: none;
+    font-family: inherit;
+  }
+  .form-control:focus { border-color: var(--navy); background: #fff; }
+  .form-control.error { border-color: var(--error); }
+  .time-row { display: grid; grid-template-columns: 1fr 18px 1fr; gap: 8px; align-items: center; }
+  .time-sep { color: var(--text-faint); text-align: center; font-weight: 700; }
+
+  /* 방문 목적 칩 */
+  .purpose-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+  .purpose-chip {
+    padding: 11px 20px;
+    border-radius: 50px;
+    background: var(--bg);
+    border: 2px solid var(--border-strong);
+    color: var(--text-muted);
+    font-size: .95rem; font-weight: 700;
+    cursor: pointer;
+    transition: all .18s;
+    font-family: inherit;
+  }
+  .purpose-chip:hover { border-color: var(--navy); color: var(--navy); background: var(--navy-light); }
+  .purpose-chip.active { background: var(--navy); border-color: var(--navy); color: #fff; box-shadow: 0 4px 12px rgba(13,43,107,0.20); }
+  .purpose-err { display: none; color: var(--error); font-size: .85rem; font-weight: 600; margin-top: 6px; }
+  .purpose-err.show { display: block; }
+  .purpose-input-wrap { display: none; margin-top: 8px; }
+  .purpose-input-wrap.open { display: block; }
+
+  /* 동반 인원 카운터 */
+  .extra-row { display: flex; align-items: center; gap: 14px; }
+  .cnt-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--border-strong);
+    color: var(--navy);
+    font-size: 1.4rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all .18s;
+    font-family: inherit;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .cnt-btn:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .extra-count { width: 60px; text-align: center; font-size: 1.1rem; font-weight: 800; border: 2px solid var(--border-strong); border-radius: var(--radius-sm); padding: 10px 0; background: var(--bg); }
+  .extra-unit { color: var(--text-muted); font-size: .9rem; font-weight: 600; }
+
+  /* 알림 배너 */
+  .info-alert {
+    background: var(--error-light);
+    border: 2px solid #fca5a5;
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    color: var(--error);
+    font-size: .95rem; font-weight: 600;
+    display: none;
+  }
+  .info-alert.show { display: block; }
+
+  /* 하단 제출 버튼 */
+  .bottom-action .submit-btn {
+    margin-left: auto;
+  }
 </style>
 {% endblock %}
 {% block body %}
-{# data-* 속성으로 서버 값 전달 #}
 <div id="pageData"
      data-affiliation="{{ affiliation }}"
      data-name="{{ name }}"
      style="display:none;"></div>
-<div class="step-page">
-  <div class="step-inner">
-    <div class="progress-wrap">
-      <div class="progress-bar">
-        <div class="prog-step done"><div class="prog-dot">✓</div> 소속</div>
-        <div class="prog-sep"></div>
-        <div class="prog-step done"><div class="prog-dot">✓</div> 부서</div>
-        <div class="prog-sep"></div>
-        <div class="prog-step done"><div class="prog-dot">✓</div> 이름</div>
-        <div class="prog-sep"></div>
-        <div class="prog-step active"><div class="prog-dot">4</div> 확인</div>
-      </div>
-    </div>
-    <div class="section-header">
-      <h1>방문 정보를 확인해 주세요</h1>
-      <p>방문 목적과 시간을 입력하고 등록을 완료하세요</p>
-    </div>
-    <div class="info-alert" id="infoAlert"></div>
-    <div class="summary-card">
-      <span class="info-chip{% if not affiliation %} missing{% endif %}">
+
+<div class="step-progress">
+  <div class="sp-item done"><div class="sp-dot">✓</div> 소속</div>
+  <div class="sp-sep"></div>
+  <div class="sp-item done"><div class="sp-dot">✓</div> 부서</div>
+  <div class="sp-sep"></div>
+  <div class="sp-item done"><div class="sp-dot">✓</div> 이름</div>
+  <div class="sp-sep"></div>
+  <div class="sp-item active"><div class="sp-dot">4</div> 확인</div>
+</div>
+
+<div class="kiosk-page">
+  <div class="page-header">
+    <h1 class="page-title">방문 정보를 확인해 주세요</h1>
+    <p class="page-sub">방문 목적과 시간을 입력하고 등록을 완료하세요</p>
+    <div class="summary-bar">
+      <span class="summary-chip{% if not affiliation %} missing{% endif %}">
         {{ affiliation if affiliation else '소속 없음' }}
       </span>
       {% if department %}
-      <span class="info-chip">{{ department }}</span>
+      <span class="summary-chip">{{ department }}</span>
       {% endif %}
-      <span class="info-chip{% if not name %} missing{% endif %}">
+      <span class="summary-chip{% if not name %} missing{% endif %}">
         {{ name if name else '이름 없음' }}
       </span>
     </div>
-    <form method="POST" action="{{ url_for('register') }}" id="registerForm">
-      <input type="hidden" name="affiliation" value="{{ affiliation }}">
-      <input type="hidden" name="department"  value="{{ department }}">
-      <input type="hidden" name="name"        value="{{ name }}">
-      <input type="hidden" name="purpose"     id="purposeFinal">
-      <div class="form-card">
-        <div class="form-section-title">방문 일시</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">날짜 <span class="req">*</span></label>
-            <input type="date" name="visit_date" class="form-control" value="{{ today }}" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">방문 시간 <span class="req">*</span></label>
-            <div class="time-row">
-              <input type="time" name="time_in"  class="form-control" value="{{ now_time }}" required>
-              <div class="time-sep">~</div>
-              <input type="time" name="time_out" class="form-control" value="18:00" required>
-            </div>
-          </div>
-        </div>
-        <div class="form-section-title" style="margin-top:8px;">방문 목적 <span class="req">*</span></div>
-        <div class="form-group">
-          <div class="purpose-grid">
-            <button type="button" class="purpose-chip" data-val="장비사용">장비사용</button>
-            <button type="button" class="purpose-chip" data-val="납품/수리">납품/수리</button>
-            <button type="button" class="purpose-chip" data-val="업무협의">업무협의</button>
-            <button type="button" class="purpose-chip" data-val="상시출입">상시출입</button>
-            <button type="button" class="purpose-chip" data-val="__direct__">직접 입력</button>
-          </div>
-          <div class="purpose-error" id="purposeError">방문 목적을 선택해 주세요.</div>
-          <div class="purpose-input-wrap" id="purposeInputWrap">
-            <input type="text" id="purposeDirectInput" class="form-control" placeholder="방문 목적을 입력하세요" autocomplete="off">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">동반 인원 <span style="font-weight:400;">(본인 제외)</span></label>
-            <div class="extra-row">
-              <button type="button" class="cnt-btn" onclick="changeCount(-1)">−</button>
-              <input type="number" name="extra_count" id="extraCount" class="form-control extra-count" value="0" min="0" max="20" readonly>
-              <button type="button" class="cnt-btn" onclick="changeCount(1)">+</button>
-              <span class="extra-unit">명</span>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">기타 메모</label>
-            <textarea name="note" class="form-control" rows="2" placeholder="추가 메모 (선택)" style="resize:none;"></textarea>
-          </div>
-        </div>
-      </div>
-      <div class="form-actions">
-        <a href="{{ url_for('step_affiliation') }}" class="btn btn-secondary btn-lg">← 처음으로</a>
-        <button type="submit" class="btn btn-primary btn-lg">등록 완료</button>
-      </div>
-    </form>
   </div>
+
+  <div class="info-alert" id="infoAlert"></div>
+
+  <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+    <input type="hidden" name="affiliation" value="{{ affiliation }}">
+    <input type="hidden" name="department"  value="{{ department }}">
+    <input type="hidden" name="name"        value="{{ name }}">
+    <input type="hidden" name="purpose"     id="purposeFinal">
+
+    <div class="form-card">
+      <div class="form-section-label">방문 일시</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">날짜 <span class="req">*</span></label>
+          <input type="date" name="visit_date" class="form-control" value="{{ today }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">방문 시간 <span class="req">*</span></label>
+          <div class="time-row">
+            <input type="time" name="time_in"  class="form-control" value="{{ now_time }}" required>
+            <div class="time-sep">~</div>
+            <input type="time" name="time_out" class="form-control" value="18:00" required>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-section-label">방문 목적 <span class="req" style="font-size:.9rem;">*</span></div>
+      <div class="form-group">
+        <div class="purpose-grid">
+          <button type="button" class="purpose-chip" data-val="장비사용">장비사용</button>
+          <button type="button" class="purpose-chip" data-val="납품/수리">납품/수리</button>
+          <button type="button" class="purpose-chip" data-val="업무협의">업무협의</button>
+          <button type="button" class="purpose-chip" data-val="상시출입">상시출입</button>
+          <button type="button" class="purpose-chip" data-val="__direct__">직접 입력</button>
+        </div>
+        <div class="purpose-err" id="purposeError">방문 목적을 선택해 주세요.</div>
+        <div class="purpose-input-wrap" id="purposeInputWrap">
+          <input type="text" id="purposeDirectInput" class="form-control" placeholder="방문 목적을 입력하세요" autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-section-label">추가 정보</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">동반 인원 <span style="font-weight:400;">(본인 제외)</span></label>
+          <div class="extra-row">
+            <button type="button" class="cnt-btn" onclick="changeCount(-1)">−</button>
+            <input type="number" name="extra_count" id="extraCount" class="extra-count" value="0" min="0" max="20" readonly>
+            <button type="button" class="cnt-btn" onclick="changeCount(1)">+</button>
+            <span class="extra-unit">명</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">기타 메모</label>
+          <textarea name="note" class="form-control" rows="2" placeholder="추가 메모 (선택)" style="resize:none;"></textarea>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="bottom-action">
+  <a href="{{ url_for('step_affiliation') }}">
+    <button class="btn-back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      처음으로
+    </button>
+  </a>
+  <button type="submit" form="registerForm" class="btn btn-primary btn-lg submit-btn">
+    등록 완료
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  </button>
 </div>
 {% endblock %}
 {% block script %}
@@ -149,12 +252,12 @@
   const affVal  = pd.dataset.affiliation || '';
   const nameVal = pd.dataset.name || '';
 
-  const chips        = document.querySelectorAll('.purpose-chip');
-  const directWrap   = document.getElementById('purposeInputWrap');
-  const directInput  = document.getElementById('purposeDirectInput');
-  const finalInput   = document.getElementById('purposeFinal');
-  const purposeErr   = document.getElementById('purposeError');
-  const infoAlert    = document.getElementById('infoAlert');
+  const chips       = document.querySelectorAll('.purpose-chip');
+  const directWrap  = document.getElementById('purposeInputWrap');
+  const directInput = document.getElementById('purposeDirectInput');
+  const finalInput  = document.getElementById('purposeFinal');
+  const purposeErr  = document.getElementById('purposeError');
+  const infoAlert   = document.getElementById('infoAlert');
 
   if (!affVal || !nameVal) {
     const missing = [];
@@ -165,9 +268,9 @@
   }
 
   let selectedVal = '';
-  chips.forEach(function(chip) {
-    chip.addEventListener('click', function() {
-      chips.forEach(function(c) { c.classList.remove('active'); });
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       selectedVal = chip.dataset.val;
       purposeErr.classList.remove('show');
@@ -197,7 +300,7 @@
       return;
     }
     if (selectedVal === '__direct__') {
-      var v = directInput.value.trim();
+      const v = directInput.value.trim();
       if (!v) {
         e.preventDefault();
         directInput.classList.add('error');
@@ -208,10 +311,10 @@
     }
   });
 
-  directInput.addEventListener('input', function() { directInput.classList.remove('error'); });
+  directInput.addEventListener('input', () => directInput.classList.remove('error'));
 
   function changeCount(d) {
-    var el = document.getElementById('extraCount');
+    const el = document.getElementById('extraCount');
     el.value = Math.max(0, Math.min(20, parseInt(el.value || 0) + d));
   }
 </script>

@@ -2,45 +2,60 @@
 {% block title %}이름 선택{% endblock %}
 {% block extra_style %}
 <style>
-  .step-page { min-height:calc(100vh - 56px); background:var(--bg); padding:32px 24px 40px; display:flex; flex-direction:column; align-items:center; }
-  .step-inner { width:100%; max-width:760px; }
-  .progress-wrap { display:flex; justify-content:center; margin-bottom:36px; }
-  .progress-bar { display:flex; align-items:center; background:var(--white); border:1px solid var(--border); border-radius:50px; padding:8px 20px; gap:0; }
-  .prog-step { display:flex; align-items:center; gap:8px; font-size:.82rem; font-weight:600; color:var(--muted); padding:0 10px; }
-  .prog-step.active { color:var(--navy); } .prog-step.done { color:var(--teal); }
-  .prog-dot { width:24px; height:24px; border-radius:50%; background:var(--border); color:var(--muted); display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; }
-  .prog-step.active .prog-dot { background:var(--navy); color:#fff; }
-  .prog-step.done .prog-dot { background:var(--teal); color:#fff; }
-  .prog-sep { width:24px; height:1px; background:var(--border); }
-  .section-header { margin-bottom:24px; }
-  .section-header h1 { font-size:1.5rem; font-weight:800; color:var(--navy); margin-bottom:4px; }
-  .section-header p { color:var(--muted); font-size:.9rem; }
-  .card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; margin-bottom:20px; }
-  .choice-card { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:24px 14px 18px; display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer; transition:all .18s ease; text-align:center; text-decoration:none; }
-  .choice-card:hover { border-color:var(--navy); background:var(--light); transform:translateY(-2px); box-shadow:var(--shadow-md); }
-  .choice-card:active { transform:translateY(0); }
-  .choice-card.direct-card { border-style:dashed; }
-  .choice-card.direct-card:hover { border-color:var(--teal); background:rgba(58,159,165,0.05); }
-  .card-icon { width:46px; height:46px; background:var(--light); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--navy); }
-  .direct-card .card-icon { background:rgba(58,159,165,0.1); color:var(--teal); border-radius:12px; }
-  .card-label { font-size:.95rem; font-weight:700; color:var(--text); }
-  .direct-input-area { display:none; background:var(--white); border:1.5px solid var(--teal); border-radius:var(--radius); padding:20px; margin-top:4px; margin-bottom:16px; }
-  .direct-input-area.open { display:block; }
-  .direct-row { display:flex; gap:10px; }
-  .custom-input { flex:1; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:13px 15px; font-size:1rem; color:var(--text); background:var(--bg); outline:none; font-family:inherit; transition:border-color .2s; }
-  .custom-input:focus { border-color:var(--navy); background:var(--white); }
-  .back-btn { display:flex; align-items:center; gap:6px; color:var(--muted); font-size:.9rem; font-weight:600; cursor:pointer; background:none; border:none; padding:8px 0; transition:color .2s; }
-  .back-btn:hover { color:var(--navy); }
+  .kiosk-page {
+    min-height: calc(100vh - var(--header-h) - var(--footer-h));
+    padding: 0 32px 24px;
+    display: flex; flex-direction: column;
+  }
+  .page-header {
+    padding: 28px 0 20px;
+    border-bottom: 1.5px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .page-title { font-size: 1.6rem; font-weight: 900; color: var(--navy); margin-bottom: 4px; letter-spacing: -.01em; }
+  .page-sub   { font-size: .95rem; color: var(--text-muted); }
+  .breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 10px; flex-wrap: wrap;
+  }
+  .bc-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--navy-light); color: var(--navy);
+    padding: 4px 12px; border-radius: 50px;
+    font-size: .82rem; font-weight: 700;
+  }
+  .bc-sep { color: var(--text-faint); font-size: .9rem; }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .kiosk-card .kc-icon {
+    background: var(--teal-light);
+    color: var(--teal);
+    border-radius: 50%;
+  }
+  .kiosk-card.direct .kc-icon {
+    border-radius: var(--radius-sm);
+  }
+  .empty-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 48px 0;
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
 </style>
 {% endblock %}
 {% block body %}
-{# data-* 속성으로 서버 값 전달 #}
 {% set is_direct = (dept is none) %}
 {% if is_direct %}
   {% set back_url = url_for('step_department', aff_id=0) ~ ('?custom_aff=' ~ custom_aff if custom_aff else '') %}
 {% else %}
   {% set back_url = url_for('step_department', aff_id=dept.affiliation_id) ~ ('?custom_aff=' ~ custom_aff if custom_aff else '') %}
 {% endif %}
+
 <div id="pageData"
      data-custom-aff="{{ custom_aff }}"
      data-custom-dept="{{ custom_dept }}"
@@ -49,62 +64,79 @@
      data-step-form-url="{{ url_for('step_form') }}"
      data-is-direct="{{ 'true' if is_direct else 'false' }}"
      style="display:none;"></div>
-<div class="step-page">
-  <div class="step-inner">
-    <div class="progress-wrap">
-      <div class="progress-bar">
-        <div class="prog-step done"><div class="prog-dot">✓</div> 소속</div>
-        <div class="prog-sep"></div>
-        <div class="prog-step done"><div class="prog-dot">✓</div> 부서</div>
-        <div class="prog-sep"></div>
-        <div class="prog-step active"><div class="prog-dot">3</div> 이름</div>
-        <div class="prog-sep"></div>
-        <div class="prog-step"><div class="prog-dot">4</div> 확인</div>
-      </div>
+
+<div class="step-progress">
+  <div class="sp-item done"><div class="sp-dot">✓</div> 소속</div>
+  <div class="sp-sep"></div>
+  <div class="sp-item done"><div class="sp-dot">✓</div> 부서</div>
+  <div class="sp-sep"></div>
+  <div class="sp-item active"><div class="sp-dot">3</div> 이름</div>
+  <div class="sp-sep"></div>
+  <div class="sp-item"><div class="sp-dot">4</div> 확인</div>
+</div>
+
+<div class="kiosk-page">
+  <div class="page-header">
+    <h1 class="page-title">이름을 선택해 주세요</h1>
+    <p class="page-sub">목록에 없으면 직접 입력할 수 있습니다</p>
+    <div class="breadcrumb">
+      {% if dept %}
+        <span class="bc-chip">{{ dept.aff_name }}</span>
+        <span class="bc-sep">›</span>
+        <span class="bc-chip">{{ dept.name }}</span>
+      {% else %}
+        {% if custom_aff %}<span class="bc-chip">{{ custom_aff }}</span><span class="bc-sep">›</span>{% endif %}
+        {% if custom_dept %}<span class="bc-chip">{{ custom_dept }}</span>{% endif %}
+      {% endif %}
     </div>
-    <div class="section-header">
-      <h1>이름을 선택해 주세요</h1>
-      <p>목록에 이름이 없으면 직접 입력할 수 있습니다</p>
-    </div>
-    <div class="card-grid">
-      {% if not is_direct %}
-        {% for m in members %}
-          {% set member_url = url_for('step_form') ~ '?aff_id=' ~ dept.affiliation_id ~ '&dept_id=' ~ dept.id ~ '&member_id=' ~ m.id %}
-          {% if custom_aff %}{% set member_url = member_url ~ '&custom_aff=' ~ (custom_aff | urlencode) %}{% endif %}
-          <a class="choice-card" href="{{ member_url }}">
-            <div class="card-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+  </div>
+
+  <div class="card-grid">
+    {% if not is_direct %}
+      {% for m in members %}
+        {% set member_url = url_for('step_form') ~ '?aff_id=' ~ dept.affiliation_id ~ '&dept_id=' ~ dept.id ~ '&member_id=' ~ m.id %}
+        {% if custom_aff %}{% set member_url = member_url ~ '&custom_aff=' ~ (custom_aff | urlencode) %}{% endif %}
+        <a href="{{ member_url }}">
+          <div class="kiosk-card">
+            <div class="kc-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
               </svg>
             </div>
-            <div class="card-label">{{ m.name }}</div>
-          </a>
-        {% else %}
-          <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:32px 0;font-size:.95rem;">등록된 인원이 없습니다.</p>
-        {% endfor %}
-      {% endif %}
-      <div class="choice-card direct-card" id="directCard">
-        <div class="card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-        </div>
-        <div class="card-label">직접 입력</div>
+            <div class="kc-label">{{ m.name }}</div>
+          </div>
+        </a>
+      {% else %}
+        <p class="empty-msg">등록된 인원이 없습니다.</p>
+      {% endfor %}
+    {% endif %}
+
+    <div class="kiosk-card direct" id="directCard">
+      <div class="kc-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
       </div>
+      <div class="kc-label">직접 입력</div>
     </div>
-    <div class="direct-input-area{% if is_direct %} open{% endif %}" id="directArea">
-      <div class="direct-row">
-        <input class="custom-input" id="customName" placeholder="성함을 입력하세요" autocomplete="off">
-        <button class="btn btn-primary" id="btnNext">다음 →</button>
-      </div>
-    </div>
-    <a href="{{ back_url }}">
-      <button class="back-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        이전으로 돌아가기
-      </button>
-    </a>
   </div>
+
+  <div class="direct-area{% if is_direct %} open{% endif %}" id="directArea">
+    <div class="direct-row">
+      <input class="kiosk-input" id="customName" placeholder="성함을 입력하세요" autocomplete="off">
+      <button class="btn btn-teal" id="btnNext" style="flex-shrink:0;">다음 →</button>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-action">
+  <a href="{{ back_url }}">
+    <button class="btn-back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      이전으로
+    </button>
+  </a>
 </div>
 {% endblock %}
 {% block script %}
@@ -122,27 +154,18 @@
   const customName = document.getElementById('customName');
   const btnNext    = document.getElementById('btnNext');
 
-  // 직접입력 경로면 바로 포커스
   if (isDirect) customName.focus();
 
   directCard.addEventListener('click', function() {
     const isOpen = directArea.classList.contains('open');
     directArea.classList.toggle('open');
-    if (!isOpen) {
-      customName.focus();
-      directCard.style.borderColor = 'var(--teal)';
-    } else {
-      directCard.style.borderColor = '';
-    }
+    directCard.classList.toggle('open');
+    if (!isOpen) customName.focus();
   });
 
   function goCustom() {
     const val = customName.value.trim();
-    if (!val) {
-      customName.focus();
-      customName.style.borderColor = 'var(--error, #e53)';
-      return;
-    }
+    if (!val) { customName.classList.add('error'); customName.focus(); return; }
     const params = new URLSearchParams();
     if (customAff)  params.set('custom_aff',  customAff);
     if (customDept) params.set('custom_dept', customDept);
@@ -153,11 +176,7 @@
   }
 
   btnNext.addEventListener('click', goCustom);
-  customName.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') goCustom();
-  });
-  customName.addEventListener('input', function() {
-    customName.style.borderColor = '';
-  });
+  customName.addEventListener('keydown', e => { if (e.key === 'Enter') goCustom(); });
+  customName.addEventListener('input',   () => customName.classList.remove('error'));
 </script>
 {% endblock %}

@@ -2,105 +2,123 @@
 {% block title %}부서 선택{% endblock %}
 {% block extra_style %}
 <style>
-  .step-page { min-height:calc(100vh - 56px); background:var(--bg); padding:32px 24px 40px; display:flex; flex-direction:column; align-items:center; }
-  .step-inner { width:100%; max-width:760px; }
-  .progress-wrap { display:flex; justify-content:center; margin-bottom:36px; }
-  .progress-bar { display:flex; align-items:center; background:var(--white); border:1px solid var(--border); border-radius:50px; padding:8px 20px; gap:0; }
-  .prog-step { display:flex; align-items:center; gap:8px; font-size:.82rem; font-weight:600; color:var(--muted); padding:0 10px; }
-  .prog-step.active { color:var(--navy); } .prog-step.done { color:var(--teal); }
-  .prog-dot { width:24px; height:24px; border-radius:50%; background:var(--border); color:var(--muted); display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; }
-  .prog-step.active .prog-dot { background:var(--navy); color:#fff; }
-  .prog-step.done .prog-dot { background:var(--teal); color:#fff; }
-  .prog-sep { width:24px; height:1px; background:var(--border); }
-  .section-header { margin-bottom:24px; }
-  .section-header h1 { font-size:1.5rem; font-weight:800; color:var(--navy); margin-bottom:4px; }
-  .section-header p { color:var(--muted); font-size:.9rem; }
-  .card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:12px; margin-bottom:20px; }
-  .choice-card { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:26px 14px 20px; display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer; transition:all .18s ease; text-align:center; text-decoration:none; }
-  .choice-card:hover { border-color:var(--navy); background:var(--light); transform:translateY(-2px); box-shadow:var(--shadow-md); }
-  .choice-card:active { transform:translateY(0); }
-  .choice-card.direct-card { border-style:dashed; }
-  .choice-card.direct-card:hover { border-color:var(--teal); background:rgba(58,159,165,0.05); }
-  .card-icon { width:46px; height:46px; background:var(--light); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--navy); }
-  .direct-card .card-icon { background:rgba(58,159,165,0.1); color:var(--teal); }
-  .card-label { font-size:.95rem; font-weight:700; color:var(--text); line-height:1.35; }
-  .direct-input-area { display:none; background:var(--white); border:1.5px solid var(--teal); border-radius:var(--radius); padding:20px; margin-top:4px; margin-bottom:16px; }
-  .direct-input-area.open { display:block; }
-  .direct-row { display:flex; gap:10px; }
-  .custom-input { flex:1; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:13px 15px; font-size:1rem; color:var(--text); background:var(--bg); outline:none; font-family:inherit; transition:border-color .2s; }
-  .custom-input:focus { border-color:var(--navy); background:var(--white); }
-  .back-btn { display:flex; align-items:center; gap:6px; color:var(--muted); font-size:.9rem; font-weight:600; cursor:pointer; background:none; border:none; padding:8px 0; transition:color .2s; }
-  .back-btn:hover { color:var(--navy); }
+  .kiosk-page {
+    min-height: calc(100vh - var(--header-h) - var(--footer-h));
+    padding: 0 32px 24px;
+    display: flex; flex-direction: column;
+  }
+  .page-header {
+    padding: 28px 0 20px;
+    border-bottom: 1.5px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .page-title { font-size: 1.6rem; font-weight: 900; color: var(--navy); margin-bottom: 4px; letter-spacing: -.01em; }
+  .page-sub   { font-size: .95rem; color: var(--text-muted); }
+  .aff-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--navy-light); color: var(--navy);
+    padding: 5px 14px; border-radius: 50px;
+    font-size: .85rem; font-weight: 700;
+    margin-top: 8px;
+  }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .empty-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 48px 0;
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
 </style>
 {% endblock %}
 {% block body %}
-{# data-* 속성으로 서버 값 전달 - JS 인라인 문자열 인코딩 문제 완전 차단 #}
 <div id="pageData"
      data-custom-aff="{{ custom_aff }}"
      data-aff-id="{{ aff.id if aff else 0 }}"
      style="display:none;"></div>
-<div class="step-page">
-  <div class="step-inner">
-    <div class="progress-wrap">
-      <div class="progress-bar">
-        <div class="prog-step done"><div class="prog-dot">✓</div> 소속</div>
-        <div class="prog-sep"></div>
-        <div class="prog-step active"><div class="prog-dot">2</div> 부서</div>
-        <div class="prog-sep"></div>
-        <div class="prog-step"><div class="prog-dot">3</div> 이름</div>
-        <div class="prog-sep"></div>
-        <div class="prog-step"><div class="prog-dot">4</div> 확인</div>
-      </div>
-    </div>
-    <div class="section-header">
-      <h1>부서를 선택해 주세요</h1>
-      <p>소속 내 해당 부서를 선택하세요</p>
-    </div>
-    <div class="card-grid">
-      {% for d in departments %}
-        {% if custom_aff %}
-          <a class="choice-card" href="{{ url_for('step_member', dept_id=d.id) }}?custom_aff={{ custom_aff | urlencode }}">
-        {% else %}
-          <a class="choice-card" href="{{ url_for('step_member', dept_id=d.id) }}">
-        {% endif %}
-            <div class="card-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-              </svg>
-            </div>
-            <div class="card-label">{{ d.name }}</div>
-          </a>
-      {% else %}
-        <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:32px 0;font-size:.95rem;">등록된 부서가 없습니다.</p>
-      {% endfor %}
-      <div class="choice-card direct-card" id="directCard">
-        <div class="card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-        </div>
-        <div class="card-label">직접 입력</div>
-      </div>
-    </div>
-    <div class="direct-input-area" id="directArea">
-      <div class="direct-row">
-        <input class="custom-input" id="customDept" placeholder="부서명을 입력하세요" autocomplete="off">
-        <button class="btn btn-primary" id="btnNext">다음 →</button>
-      </div>
-    </div>
-    <a href="{{ url_for('step_affiliation') }}">
-      <button class="back-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        이전으로 돌아가기
-      </button>
-    </a>
+
+<div class="step-progress">
+  <div class="sp-item done"><div class="sp-dot">✓</div> 소속</div>
+  <div class="sp-sep"></div>
+  <div class="sp-item active"><div class="sp-dot">2</div> 부서</div>
+  <div class="sp-sep"></div>
+  <div class="sp-item"><div class="sp-dot">3</div> 이름</div>
+  <div class="sp-sep"></div>
+  <div class="sp-item"><div class="sp-dot">4</div> 확인</div>
+</div>
+
+<div class="kiosk-page">
+  <div class="page-header">
+    <h1 class="page-title">부서를 선택해 주세요</h1>
+    <p class="page-sub">소속 내 해당 부서를 선택하세요</p>
+    {% if aff %}
+      <span class="aff-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        {{ aff.name }}
+      </span>
+    {% elif custom_aff %}
+      <span class="aff-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        {{ custom_aff }}
+      </span>
+    {% endif %}
   </div>
+
+  <div class="card-grid">
+    {% for d in departments %}
+      {% if custom_aff %}
+        <a href="{{ url_for('step_member', dept_id=d.id) }}?custom_aff={{ custom_aff | urlencode }}">
+      {% else %}
+        <a href="{{ url_for('step_member', dept_id=d.id) }}">
+      {% endif %}
+        <div class="kiosk-card">
+          <div class="kc-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            </svg>
+          </div>
+          <div class="kc-label">{{ d.name }}</div>
+        </div>
+      </a>
+    {% else %}
+      <p class="empty-msg">등록된 부서가 없습니다.</p>
+    {% endfor %}
+
+    <div class="kiosk-card direct" id="directCard">
+      <div class="kc-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </div>
+      <div class="kc-label">직접 입력</div>
+    </div>
+  </div>
+
+  <div class="direct-area" id="directArea">
+    <div class="direct-row">
+      <input class="kiosk-input" id="customDept" placeholder="부서명을 입력하세요" autocomplete="off">
+      <button class="btn btn-teal" id="btnNext" style="flex-shrink:0;">다음 →</button>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-action">
+  <a href="{{ url_for('step_affiliation') }}">
+    <button class="btn-back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      이전으로
+    </button>
+  </a>
 </div>
 {% endblock %}
 {% block script %}
 <script>
-  // data-* 속성에서 읽기: 한글/특수문자 인코딩 문제 없음
   const pd        = document.getElementById('pageData');
   const customAff = pd.dataset.customAff || '';
   const affId     = parseInt(pd.dataset.affId) || 0;
@@ -113,21 +131,13 @@
   directCard.addEventListener('click', function() {
     const isOpen = directArea.classList.contains('open');
     directArea.classList.toggle('open');
-    if (!isOpen) {
-      customDept.focus();
-      directCard.style.borderColor = 'var(--teal)';
-    } else {
-      directCard.style.borderColor = '';
-    }
+    directCard.classList.toggle('open');
+    if (!isOpen) customDept.focus();
   });
 
   function goCustom() {
     const val = customDept.value.trim();
-    if (!val) {
-      customDept.focus();
-      customDept.style.borderColor = 'var(--error, #e53)';
-      return;
-    }
+    if (!val) { customDept.classList.add('error'); customDept.focus(); return; }
     const params = new URLSearchParams();
     if (customAff) params.set('custom_aff', customAff);
     if (affId)     params.set('aff_id', String(affId));
@@ -136,11 +146,7 @@
   }
 
   btnNext.addEventListener('click', goCustom);
-  customDept.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') goCustom();
-  });
-  customDept.addEventListener('input', function() {
-    customDept.style.borderColor = '';
-  });
+  customDept.addEventListener('keydown', e => { if (e.key === 'Enter') goCustom(); });
+  customDept.addEventListener('input',   () => customDept.classList.remove('error'));
 </script>
 {% endblock %}
