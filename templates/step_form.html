@@ -8,135 +8,126 @@
     display: flex; flex-direction: column;
   }
   .page-header {
-    padding: 16px 0 14px;
-    border-bottom: 1.5px solid var(--border);
+    padding: 18px 0 14px;
+    border-bottom: 1px solid var(--border);
     margin-bottom: 14px;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
   }
-  .page-title { font-size: 1.35rem; font-weight: 900; color: var(--navy); margin-bottom: 3px; letter-spacing: -.01em; }
-  .page-sub   { font-size: .88rem; color: var(--text-muted); }
+  .page-title { font-size: 1.3rem; font-weight: 900; color: var(--navy); letter-spacing: -.01em; }
+  .page-sub   { font-size: .85rem; color: var(--text-muted); }
 
-  /* 요약 칩 */
   .summary-bar {
-    display: flex; align-items: center; gap: 6px;
+    display: flex; align-items: center; gap: 5px;
     flex-wrap: wrap;
     margin-top: 8px;
   }
   .summary-chip {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 12px; border-radius: 50px;
-    font-size: .82rem; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 4px;
+    font-size: .8rem; font-weight: 700;
     background: var(--navy-light); color: var(--navy);
+    border: 1px solid rgba(13,43,107,0.12);
   }
   .summary-chip.missing {
     background: var(--error-light); color: var(--error);
-    border: 1.5px solid #fca5a5;
+    border: 1px solid #fca5a5;
   }
 
-  /* 폼 카드 */
   .form-card {
     background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 16px 20px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
     margin-bottom: 10px;
-    box-shadow: var(--shadow-sm);
   }
   .form-section-label {
-    font-size: .74rem; font-weight: 800;
+    font-size: .72rem; font-weight: 800;
     color: var(--text-muted);
-    letter-spacing: .06em;
+    letter-spacing: .07em;
     text-transform: uppercase;
     margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
   }
   .form-group { margin-bottom: 10px; }
   .form-group:last-child { margin-bottom: 0; }
   .form-label {
     display: block; margin-bottom: 5px;
-    font-size: .84rem; font-weight: 700;
+    font-size: .82rem; font-weight: 700;
     color: var(--text-muted);
   }
   .form-label .req { color: var(--navy); }
   .form-control {
     width: 100%;
     background: var(--bg);
-    border: 2px solid var(--border-strong);
-    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border-strong);
+    border-radius: 4px;
     color: var(--text);
     font-size: .95rem; font-weight: 500;
-    padding: 10px 14px;
+    padding: 9px 12px;
     outline: none;
-    transition: border-color .2s, background .2s;
+    transition: border-color .15s;
     -webkit-appearance: none;
     font-family: inherit;
   }
-  .form-control:focus { border-color: var(--navy); background: #fff; }
+  .form-control:focus { border-color: var(--navy); }
   .form-control.error { border-color: var(--error); }
 
-  /* 방문일시: 날짜 위, 시간 아래 (세로 배치) */
   .datetime-block { display: flex; flex-direction: column; gap: 10px; }
-  .time-row { display: grid; grid-template-columns: 1fr 18px 1fr; gap: 8px; align-items: center; }
-  .time-sep { color: var(--text-faint); text-align: center; font-weight: 700; }
+  .time-row { display: grid; grid-template-columns: 1fr 16px 1fr; gap: 8px; align-items: center; }
+  .time-sep { color: var(--text-faint); text-align: center; font-weight: 700; font-size: .9rem; }
 
-  /* 방문 목적 칩 */
-  .purpose-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .purpose-grid { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 8px; }
   .purpose-chip {
-    padding: 8px 16px;
-    border-radius: 50px;
+    padding: 7px 14px;
+    border-radius: 4px;
     background: var(--bg);
-    border: 2px solid var(--border-strong);
+    border: 1.5px solid var(--border-strong);
     color: var(--text-muted);
-    font-size: .88rem; font-weight: 700;
+    font-size: .86rem; font-weight: 700;
     cursor: pointer;
-    transition: all .18s;
+    transition: border-color .15s, color .15s, background .15s;
     font-family: inherit;
   }
-  .purpose-chip:hover { border-color: var(--navy); color: var(--navy); background: var(--navy-light); }
-  .purpose-chip.active { background: var(--navy); border-color: var(--navy); color: #fff; box-shadow: 0 4px 12px rgba(13,43,107,0.20); }
-  .purpose-err { display: none; color: var(--error); font-size: .83rem; font-weight: 600; margin-top: 5px; }
+  .purpose-chip:hover { border-color: var(--navy); color: var(--navy); }
+  .purpose-chip.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .purpose-err { display: none; color: var(--error); font-size: .8rem; font-weight: 600; margin-top: 4px; }
   .purpose-err.show { display: block; }
   .purpose-input-wrap { display: none; margin-top: 6px; }
   .purpose-input-wrap.open { display: block; }
 
-  /* 동반 인원 카운터 */
-  .extra-row { display: flex; align-items: center; gap: 12px; }
+  .extra-row { display: flex; align-items: center; gap: 10px; }
   .cnt-btn {
-    width: 38px; height: 38px;
-    border-radius: 50%;
+    width: 36px; height: 36px;
+    border-radius: 4px;
     background: var(--bg);
-    border: 2px solid var(--border-strong);
+    border: 1.5px solid var(--border-strong);
     color: var(--navy);
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
-    transition: all .18s;
+    transition: background .15s, color .15s;
     font-family: inherit;
     font-weight: 700;
     flex-shrink: 0;
   }
   .cnt-btn:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
-  .extra-count { width: 54px; text-align: center; font-size: 1rem; font-weight: 800; border: 2px solid var(--border-strong); border-radius: var(--radius-sm); padding: 8px 0; background: var(--bg); }
-  .extra-unit { color: var(--text-muted); font-size: .88rem; font-weight: 600; }
+  .extra-count { width: 48px; text-align: center; font-size: .95rem; font-weight: 800; border: 1.5px solid var(--border-strong); border-radius: 4px; padding: 7px 0; background: var(--bg); }
+  .extra-unit { color: var(--text-muted); font-size: .86rem; font-weight: 600; }
 
-  /* 추가정보: 동반인원 위, 기타메모 아래 (세로 배치) */
   .extra-block { display: flex; flex-direction: column; gap: 10px; }
 
-  /* 알림 배너 */
   .info-alert {
     background: var(--error-light);
-    border: 2px solid #fca5a5;
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
+    border: 1px solid #fca5a5;
+    border-radius: 4px;
+    padding: 9px 13px;
     margin-bottom: 10px;
     color: var(--error);
-    font-size: .9rem; font-weight: 600;
+    font-size: .87rem; font-weight: 600;
     display: none;
   }
   .info-alert.show { display: block; }
-
-  /* 하단 제출 버튼 */
-  .bottom-action .submit-btn {
-    margin-left: auto;
-  }
 </style>
 {% endblock %}
 {% block body %}
@@ -157,30 +148,29 @@
 
 <div class="kiosk-page">
   <div class="page-header">
-    <h1 class="page-title">방문 정보를 확인해 주세요</h1>
-    <p class="page-sub">방문 목적과 시간을 입력하고 등록을 완료하세요</p>
-    <div class="summary-bar">
-      <span class="summary-chip{% if not affiliation %} missing{% endif %}">
-        {{ affiliation if affiliation else '소속 없음' }}
-      </span>
-      {% if department %}
-      <span class="summary-chip">{{ department }}</span>
-      {% endif %}
-      <span class="summary-chip{% if not name %} missing{% endif %}">
-        {{ name if name else '이름 없음' }}
-      </span>
-    </div>
+    <h1 class="page-title">방문 정보 확인</h1>
+    <span class="page-sub">목적과 시간을 입력 후 등록하세요</span>
+  </div>
+  <div class="summary-bar">
+    <span class="summary-chip{% if not affiliation %} missing{% endif %}">
+      {{ affiliation if affiliation else '소속 없음' }}
+    </span>
+    {% if department %}
+    <span class="summary-chip">{{ department }}</span>
+    {% endif %}
+    <span class="summary-chip{% if not name %} missing{% endif %}">
+      {{ name if name else '이름 없음' }}
+    </span>
   </div>
 
   <div class="info-alert" id="infoAlert"></div>
 
-  <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+  <form method="POST" action="{{ url_for('register') }}" id="registerForm" style="margin-top:14px;">
     <input type="hidden" name="affiliation" value="{{ affiliation }}">
     <input type="hidden" name="department"  value="{{ department }}">
     <input type="hidden" name="name"        value="{{ name }}">
     <input type="hidden" name="purpose"     id="purposeFinal">
 
-    <!-- 방문 일시: 날짜 위, 방문시간 아래 -->
     <div class="form-card">
       <div class="form-section-label">방문 일시</div>
       <div class="datetime-block">
@@ -199,7 +189,6 @@
       </div>
     </div>
 
-    <!-- 방문 목적 -->
     <div class="form-card">
       <div class="form-section-label">방문 목적 <span class="req" style="font-size:.9rem;">*</span></div>
       <div class="form-group">
@@ -217,12 +206,11 @@
       </div>
     </div>
 
-    <!-- 추가 정보: 동반인원 위, 기타메모 아래 -->
     <div class="form-card">
       <div class="form-section-label">추가 정보</div>
       <div class="extra-block">
         <div class="form-group">
-          <label class="form-label">동반 인원 <span style="font-weight:400;">(본인 제외)</span></label>
+          <label class="form-label">동반 인원 <span style="font-weight:400;color:var(--text-faint);">(본인 제외)</span></label>
           <div class="extra-row">
             <button type="button" class="cnt-btn" onclick="changeCount(-1)">−</button>
             <input type="number" name="extra_count" id="extraCount" class="extra-count" value="0" min="0" max="20" readonly>
@@ -242,13 +230,13 @@
 <div class="bottom-action">
   <a href="{{ url_for('step_affiliation') }}">
     <button class="btn-back">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       처음으로
     </button>
   </a>
   <button type="submit" form="registerForm" class="btn btn-primary btn-lg submit-btn">
     등록 완료
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
       <path d="M5 12h14M12 5l7 7-7 7"/>
     </svg>
   </button>
@@ -271,7 +259,7 @@
     const missing = [];
     if (!affVal)  missing.push('소속');
     if (!nameVal) missing.push('이름');
-    infoAlert.textContent = '⚠️ ' + missing.join(', ') + '이(가) 입력되지 않았습니다. 이전 단계로 돌아가서 다시 시도해주세요.';
+    infoAlert.textContent = '⚠️ ' + missing.join(', ') + '이(가) 입력되지 않았습니다. 이전 단계로 돌아가 다시 시도해주세요.';
     infoAlert.classList.add('show');
   }
 

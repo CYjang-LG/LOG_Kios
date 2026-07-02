@@ -8,31 +8,32 @@
     display: flex; flex-direction: column;
   }
   .page-header {
-    padding: 28px 0 20px;
-    border-bottom: 1.5px solid var(--border);
-    margin-bottom: 24px;
+    padding: 22px 0 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
   }
-  .page-title { font-size: 1.6rem; font-weight: 900; color: var(--navy); margin-bottom: 4px; letter-spacing: -.01em; }
-  .page-sub   { font-size: .95rem; color: var(--text-muted); }
+  .page-title { font-size: 1.45rem; font-weight: 900; color: var(--navy); letter-spacing: -.01em; line-height: 1.2; }
+  .page-sub   { font-size: .88rem; color: var(--text-muted); flex-shrink: 0; }
   .aff-badge {
-    display: inline-flex; align-items: center; gap: 6px;
+    display: inline-flex; align-items: center; gap: 5px;
     background: var(--navy-light); color: var(--navy);
-    padding: 5px 14px; border-radius: 50px;
-    font-size: .85rem; font-weight: 700;
-    margin-top: 8px;
+    padding: 3px 10px; border-radius: 4px;
+    font-size: .8rem; font-weight: 700;
+    margin-top: 6px;
+    border: 1px solid rgba(13,43,107,0.12);
   }
   .card-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 14px;
-    margin-bottom: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
   }
   .empty-msg {
     grid-column: 1 / -1;
-    text-align: center;
-    padding: 48px 0;
+    padding: 40px 0;
     color: var(--text-muted);
-    font-size: 1rem;
+    font-size: .92rem;
   }
 </style>
 {% endblock %}
@@ -54,22 +55,22 @@
 
 <div class="kiosk-page">
   <div class="page-header">
-    <h1 class="page-title">부서를 선택해 주세요</h1>
-    <p class="page-sub">소속 내 해당 부서를 선택하세요</p>
-    {% if aff %}
-      <span class="aff-badge">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        {{ aff.name }}
-      </span>
-    {% elif custom_aff %}
-      <span class="aff-badge">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        {{ custom_aff }}
-      </span>
-    {% endif %}
+    <h1 class="page-title">부서 선택</h1>
+    <span class="page-sub">해당 부서를 선택하세요</span>
   </div>
+  {% if aff %}
+    <span class="aff-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      {{ aff.name }}
+    </span>
+  {% elif custom_aff %}
+    <span class="aff-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      {{ custom_aff }}
+    </span>
+  {% endif %}
 
-  <div class="card-grid">
+  <div class="card-grid" style="margin-top:16px;">
     {% for d in departments %}
       {% if custom_aff %}
         <a href="{{ url_for('step_member', dept_id=d.id) }}?custom_aff={{ custom_aff | urlencode }}">
@@ -78,7 +79,7 @@
       {% endif %}
         <div class="kiosk-card">
           <div class="kc-icon">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
               <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
             </svg>
@@ -92,7 +93,7 @@
 
     <div class="kiosk-card direct" id="directCard">
       <div class="kc-icon">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
       </div>
@@ -111,7 +112,7 @@
 <div class="bottom-action">
   <a href="{{ url_for('step_affiliation') }}">
     <button class="btn-back">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       이전으로
     </button>
   </a>

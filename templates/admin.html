@@ -2,118 +2,271 @@
 {% block title %}관리자 — 출입 기록{% endblock %}
 {% block extra_style %}
 <style>
-  body { user-select:text; background:#f0f4fb; }
-  .admin-wrap { max-width:1300px; margin:0 auto; padding:32px 20px; }
-  .admin-header { display:flex; align-items:center; justify-content:space-between;
-    flex-wrap:wrap; gap:16px; margin-bottom:24px; }
-  .admin-header h1 { font-size:1.5rem; font-weight:700; color:var(--inha-blue); }
-  .admin-actions { display:flex; gap:10px; flex-wrap:wrap; }
-  .search-bar { background:#fff; border:1px solid var(--border); border-radius:var(--radius);
-    padding:20px 24px; margin-bottom:16px;
-    display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
-  .search-bar .fg { flex:1; min-width:140px; }
-  .search-bar label { display:block; font-size:.78rem; color:var(--muted); margin-bottom:5px; font-weight:600; }
-  .search-bar input { width:100%; background:var(--surface-2); border:1.5px solid var(--border);
-    border-radius:var(--radius-sm); color:var(--text); padding:9px 12px; font-size:.9rem; outline:none; }
-  .search-bar input:focus { border-color:var(--inha-blue); }
-  .stat-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
-  .stat-chip { background:#fff; border:1px solid var(--border); border-radius:50px;
-    padding:7px 16px; font-size:.85rem; color:var(--muted); }
-  .stat-chip strong { color:var(--inha-blue); }
-  .table-wrap { background:#fff; border:1px solid var(--border); border-radius:var(--radius); overflow:auto; }
-  table { width:100%; border-collapse:collapse; min-width:900px; }
-  thead th { background:var(--inha-blue); color:#fff; padding:13px 14px;
-    text-align:left; font-size:.82rem; font-weight:600; letter-spacing:.04em; white-space:nowrap; }
-  tbody tr { border-top:1px solid var(--border); transition:background .12s; }
-  tbody tr:hover { background:var(--inha-light); }
-  tbody td { padding:12px 14px; font-size:.9rem; vertical-align:middle; }
-  .badge { display:inline-block; padding:3px 10px; border-radius:50px; font-size:.78rem; font-weight:600;
-    background:var(--inha-light); color:var(--inha-blue); }
-  .pagination { display:flex; gap:8px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
-  .page-btn { background:#fff; border:1px solid var(--border); color:var(--text);
-    padding:7px 14px; border-radius:var(--radius-sm); cursor:pointer; font-size:.88rem; transition:all .12s; }
-  .page-btn.active { background:var(--inha-blue); border-color:var(--inha-blue); color:#fff; }
-  .page-btn:hover:not(.active) { background:var(--inha-light); }
-  .empty { text-align:center; padding:50px 20px; color:var(--muted); }
+  body { user-select:text; background:#f0f2f5; }
+
+  .admin-shell {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - var(--header-h));
+  }
+
+  /* 사이드바 */
+  .admin-sidebar {
+    background: var(--navy);
+    color: #fff;
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar-section {
+    padding: 0 16px;
+    margin-bottom: 24px;
+  }
+  .sidebar-label {
+    font-size: .68rem; font-weight: 800;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 8px;
+    padding: 0 8px;
+  }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 10px;
+    border-radius: 5px;
+    color: rgba(255,255,255,0.75);
+    font-size: .88rem; font-weight: 600;
+    text-decoration: none;
+    transition: background .12s, color .12s;
+    margin-bottom: 2px;
+  }
+  .sidebar-link:hover, .sidebar-link.active {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+  }
+  .sidebar-link.danger { color: rgba(255,100,100,0.85); }
+  .sidebar-link.danger:hover { background: rgba(255,80,80,0.15); color: #ff8080; }
+  .sidebar-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 16px; }
+  .sidebar-bottom { margin-top: auto; padding: 0 16px; }
+
+  /* 메인 콘텐츠 */
+  .admin-main { padding: 28px 28px; overflow: auto; }
+
+  .main-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+  .main-title { font-size: 1.25rem; font-weight: 900; color: var(--navy); letter-spacing: -.01em; }
+  .main-sub { font-size: .82rem; color: var(--text-muted); margin-top: 2px; }
+
+  /* 통계 행 */
+  .stat-row {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .stat-box {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 12px 18px;
+    min-width: 110px;
+  }
+  .stat-box .sv { font-size: 1.5rem; font-weight: 900; color: var(--navy); line-height: 1; }
+  .stat-box .sk { font-size: .75rem; color: var(--text-muted); font-weight: 600; margin-top: 3px; }
+
+  /* 검색 */
+  .search-panel {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;
+  }
+  .search-panel .fg { flex: 1; min-width: 130px; }
+  .search-panel label { display:block; font-size:.75rem; color:var(--text-muted); margin-bottom:4px; font-weight:700; letter-spacing:.03em; }
+  .search-panel input {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border-strong);
+    border-radius: 4px;
+    color: var(--text);
+    padding: 8px 10px;
+    font-size: .88rem;
+    outline: none;
+    font-family: inherit;
+  }
+  .search-panel input:focus { border-color: var(--navy); }
+  .search-actions { display:flex; gap:7px; align-self:flex-end; }
+
+  /* 테이블 */
+  .table-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: auto;
+  }
+  table { width:100%; border-collapse:collapse; min-width:860px; }
+  thead th {
+    background: var(--navy);
+    color: #fff;
+    padding: 11px 13px;
+    text-align: left;
+    font-size: .75rem; font-weight: 700;
+    letter-spacing: .05em;
+    white-space: nowrap;
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+  thead th:last-child { border-right: none; }
+  tbody tr { border-top: 1px solid var(--border); }
+  tbody tr:hover { background: #f7f8ff; }
+  tbody td { padding: 10px 13px; font-size: .87rem; vertical-align: middle; color: var(--text); }
+  tbody td.muted { color: var(--text-muted); font-size: .82rem; }
+  .badge {
+    display: inline-block; padding: 2px 8px;
+    border-radius: 3px; font-size: .75rem; font-weight: 700;
+    background: var(--navy-light); color: var(--navy);
+    border: 1px solid rgba(13,43,107,0.12);
+  }
+  .del-btn {
+    background: none;
+    border: 1px solid #fca5a5;
+    color: var(--error);
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-size: .75rem; font-weight: 700;
+    cursor: pointer;
+    transition: background .12s;
+    font-family: inherit;
+  }
+  .del-btn:hover { background: var(--error-light); }
+
+  /* 페이지네이션 */
+  .pagination { display:flex; gap:4px; justify-content:flex-start; margin-top:16px; flex-wrap:wrap; }
+  .page-btn {
+    background: #fff; border: 1px solid var(--border);
+    color: var(--text); padding: 6px 12px;
+    border-radius: 3px; cursor: pointer; font-size: .83rem;
+    transition: all .1s; font-family: inherit;
+  }
+  .page-btn.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .page-btn:hover:not(.active) { border-color: var(--navy); color: var(--navy); }
+
+  .empty { text-align:center; padding:44px 20px; color:var(--text-muted); font-size:.9rem; }
+
+  @media (max-width: 768px) {
+    .admin-shell { grid-template-columns: 1fr; }
+    .admin-sidebar { display: none; }
+    .admin-main { padding: 16px; }
+  }
 </style>
 {% endblock %}
 {% block body %}
-<div class="admin-wrap">
-  <div class="admin-header">
-    <div style="display:flex;align-items:center;gap:14px;">
-      <a href="{{ url_for('index') }}" class="btn btn-secondary" style="padding:10px 18px;font-size:.9rem;">← 메인</a>
-      <h1>📋 출입 기록 관리</h1>
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">메뉴</div>
+      <a href="{{ url_for('admin') }}" class="sidebar-link active">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        출입 기록
+      </a>
+      <a href="{{ url_for('admin_members') }}" class="sidebar-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        사전 등록 관리
+      </a>
     </div>
-    <div class="admin-actions">
-      <a href="{{ url_for('admin_members') }}" class="btn btn-secondary" style="font-size:.9rem;">👥 사전 등록 관리</a>
-      <a href="{{ url_for('export') }}" class="btn btn-success" style="font-size:.9rem;">⬇ 엑셀 내보내기</a>
+    <div class="sidebar-section">
+      <div class="sidebar-label">내보내기</div>
+      <a href="{{ url_for('export') }}" class="sidebar-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        엑셀 다운로드
+      </a>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-bottom">
       <form method="POST" action="{{ url_for('delete_all') }}"
             onsubmit="return confirm('모든 기록을 삭제할까요? 되돌릴 수 없습니다.')">
-        <button class="btn btn-danger" style="font-size:.9rem;">🗑 전체 삭제</button>
+        <button type="submit" class="sidebar-link danger" style="width:100%;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          전체 기록 삭제
+        </button>
       </form>
-      <a href="{{ url_for('admin_logout') }}" class="btn btn-secondary" style="font-size:.9rem;">로그아웃</a>
-    </div>
-  </div>
-
-  <form method="GET" action="{{ url_for('admin') }}">
-    <div class="search-bar">
-      <div class="fg"><label>검색 (이름/소속/목적)</label>
-        <input type="text" name="search" value="{{ search }}" placeholder="검색어 입력"></div>
-      <div class="fg"><label>시작일</label><input type="date" name="date_from" value="{{ date_from }}"></div>
-      <div class="fg"><label>종료일</label><input type="date" name="date_to"   value="{{ date_to }}"></div>
-      <button type="submit" class="btn btn-primary" style="height:40px;align-self:flex-end;font-size:.9rem;">🔍 검색</button>
-      <a href="{{ url_for('admin') }}" class="btn btn-secondary" style="height:40px;align-self:flex-end;font-size:.9rem;">초기화</a>
-    </div>
-  </form>
-
-  <div class="stat-row">
-    <div class="stat-chip">전체 <strong>{{ total }}건</strong></div>
-    {% if search %}<div class="stat-chip">검색: <strong>{{ search }}</strong></div>{% endif %}
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>날짜</th><th>입실</th><th>퇴실</th>
-        <th>소속</th><th>부서/연구실</th><th>이름</th>
-        <th>동반</th><th>목적</th><th>기타</th><th style="width:70px;">삭제</th>
-      </tr></thead>
-      <tbody>
-        {% if visitors %}
-          {% for v in visitors %}
-          <tr>
-            <td>{{ v.visit_date }}</td>
-            <td>{{ v.time_in }}</td>
-            <td>{{ v.time_out }}</td>
-            <td>{{ v.affiliation }}</td>
-            <td>{{ v.department or '-' }}</td>
-            <td><strong>{{ v.name }}</strong></td>
-            <td style="text-align:center;">{% if v.extra_count %}+{{ v.extra_count }}{% else %}—{% endif %}</td>
-            <td><span class="badge">{{ v.purpose }}</span></td>
-            <td style="color:var(--muted);font-size:.82rem;">{{ v.note or '-' }}</td>
-            <td>
-              <form method="POST" action="{{ url_for('delete_visitor', vid=v.id) }}"
-                    onsubmit="return confirm('삭제할까요?')" style="display:inline;">
-                <button class="btn btn-danger" style="padding:5px 10px;font-size:.78rem;">삭제</button>
-              </form>
-            </td>
-          </tr>
-          {% endfor %}
-        {% else %}
-          <tr><td colspan="10" class="empty">📭 검색 결과가 없습니다.</td></tr>
-        {% endif %}
-      </tbody>
-    </table>
-  </div>
-
-  {% if total_pages > 1 %}
-  <div class="pagination">
-    {% for p in range(1, total_pages+1) %}
-      <a href="{{ url_for('admin', page=p, search=search, date_from=date_from, date_to=date_to) }}">
-        <button class="page-btn {% if p==page %}active{% endif %}">{{ p }}</button>
+      <a href="{{ url_for('admin_logout') }}" class="sidebar-link" style="margin-top:4px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        로그아웃
       </a>
-    {% endfor %}
-  </div>
-  {% endif %}
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="main-header">
+      <div>
+        <div class="main-title">출입 기록</div>
+        <div class="main-sub">방문자 등록 내역을 조회하고 관리합니다</div>
+      </div>
+      <a href="{{ url_for('index') }}" style="font-size:.85rem;color:var(--text-muted);text-decoration:none;">← 키오스크 메인</a>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-box"><div class="sv">{{ total }}</div><div class="sk">전체 기록</div></div>
+      {% if search %}<div class="stat-box"><div class="sv" style="font-size:1rem;">{{ search }}</div><div class="sk">검색어</div></div>{% endif %}
+    </div>
+
+    <form method="GET" action="{{ url_for('admin') }}">
+      <div class="search-panel">
+        <div class="fg"><label>검색</label><input type="text" name="search" value="{{ search }}" placeholder="이름, 소속, 목적"></div>
+        <div class="fg"><label>시작일</label><input type="date" name="date_from" value="{{ date_from }}"></div>
+        <div class="fg"><label>종료일</label><input type="date" name="date_to" value="{{ date_to }}"></div>
+        <div class="search-actions">
+          <button type="submit" class="btn btn-primary" style="height:36px;font-size:.85rem;">검색</button>
+          <a href="{{ url_for('admin') }}" class="btn btn-secondary" style="height:36px;font-size:.85rem;display:flex;align-items:center;">초기화</a>
+        </div>
+      </div>
+    </form>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>날짜</th><th>입실</th><th>퇴실</th>
+          <th>소속</th><th>부서/연구실</th><th>이름</th>
+          <th>동반</th><th>목적</th><th>기타</th><th style="width:60px;"></th>
+        </tr></thead>
+        <tbody>
+          {% if visitors %}
+            {% for v in visitors %}
+            <tr>
+              <td>{{ v.visit_date }}</td>
+              <td class="muted">{{ v.time_in }}</td>
+              <td class="muted">{{ v.time_out }}</td>
+              <td>{{ v.affiliation }}</td>
+              <td class="muted">{{ v.department or '—' }}</td>
+              <td><strong>{{ v.name }}</strong></td>
+              <td class="muted" style="text-align:center;">{% if v.extra_count %}+{{ v.extra_count }}{% else %}—{% endif %}</td>
+              <td><span class="badge">{{ v.purpose }}</span></td>
+              <td class="muted">{{ v.note or '—' }}</td>
+              <td>
+                <form method="POST" action="{{ url_for('delete_visitor', vid=v.id) }}"
+                      onsubmit="return confirm('삭제할까요?')" style="display:inline;">
+                  <button class="del-btn">삭제</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="10" class="empty">검색 결과가 없습니다.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if total_pages > 1 %}
+    <div class="pagination">
+      {% for p in range(1, total_pages+1) %}
+        <a href="{{ url_for('admin', page=p, search=search, date_from=date_from, date_to=date_to) }}">
+          <button class="page-btn {% if p==page %}active{% endif %}">{{ p }}</button>
+        </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </main>
 </div>
 {% endblock %}
