@@ -11,49 +11,41 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      /* 업센트 컴러 - 단일 accent */
-      --navy:          #1a2744;
-      --navy-hover:    #253660;
-      --navy-light:    #eef1f8;
-      --navy-mid:      #c8d1e8;
+      --navy:          #1c2d5e;
+      --navy-hover:    #243872;
+      --navy-light:    #edf0f7;
+      --navy-border:   #bec8df;
 
-      /* 서페이스 - 완전 flat */
-      --bg:            #f5f5f5;
+      --bg:            #f4f4f2;
       --surface:       #ffffff;
-      --surface-2:     #eeeeee;
-      --border:        #d4d4d4;
-      --border-strong: #b0b0b0;
+      --surface-2:     #ededeb;
+      --border:        #d6d6d3;
+      --border-strong: #aaaaaa;
 
-      /* 텍스트 */
-      --text:          #111111;
-      --text-muted:    #555555;
-      --text-faint:    #999999;
+      --text:          #141414;
+      --text-muted:    #5a5a5a;
+      --text-faint:    #9a9a9a;
 
-      /* 상태 */
-      --error:         #cc2200;
-      --error-light:   #fff0ee;
-      --success:       #1a7a3c;
-      --success-light: #eefaf2;
+      --error:         #c0392b;
+      --error-light:   #fdf0ee;
+      --success:       #1e6e3e;
+      --success-light: #edf7f1;
 
-      /* 레이아웃 */
-      --radius-xs:  6px;
-      --radius-sm:  8px;
-      --radius:     10px;
-      --radius-lg:  12px;
-      --radius-xl:  14px;
+      --radius-xs:  4px;
+      --radius-sm:  6px;
+      --radius:     8px;
+      --radius-lg:  10px;
+      --radius-xl:  12px;
 
-      /* 그림자 - 최소화 */
-      --shadow-sm:  0 1px 0 var(--border);
-
-      /* 헤더 */
-      --header-h:   64px;
-      /* 하단바 */
-      --footer-h:   76px;
+      --header-h:   60px;
+      --footer-h:   72px;
     }
+
     html, body { height: 100%; }
     body {
       font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
@@ -72,49 +64,46 @@
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       height: var(--header-h);
       background: var(--navy);
-      border-bottom: 2px solid #0d1729;
+      border-bottom: 1px solid #0f1a38;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 28px;
+      padding: 0 24px;
     }
     .top-bar-logo {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: 10px;
       color: #fff;
     }
     .top-bar-logo-icon {
-      width: 36px; height: 36px;
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.20);
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
       border-radius: var(--radius-sm);
       display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
-    .top-bar-logo-text { line-height: 1.25; }
-    .top-bar-logo-text .institution { font-size: .72rem; font-weight: 500; opacity: .65; letter-spacing: .06em; }
-    .top-bar-logo-text .dept { font-size: .98rem; font-weight: 700; letter-spacing: .01em; }
-    .top-bar-right { display: flex; align-items: center; gap: 14px; }
+    .top-bar-logo-text { line-height: 1.2; }
+    .top-bar-logo-text .institution { font-size: .68rem; font-weight: 500; opacity: .55; letter-spacing: .08em; text-transform: uppercase; }
+    .top-bar-logo-text .dept { font-size: .92rem; font-weight: 700; }
+    .top-bar-right { display: flex; align-items: center; gap: 12px; }
     .top-bar-time {
-      color: rgba(255,255,255,0.80);
-      font-size: 1.05rem;
-      font-weight: 700;
+      color: rgba(255,255,255,0.75);
+      font-size: .95rem;
+      font-weight: 600;
       font-variant-numeric: tabular-nums;
-      letter-spacing: .06em;
+      letter-spacing: .08em;
     }
     .admin-btn {
       background: transparent;
-      border: 1px solid rgba(255,255,255,0.30);
-      color: rgba(255,255,255,0.75);
-      padding: 7px 14px;
+      border: 1px solid rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.65);
+      padding: 5px 11px;
       border-radius: var(--radius-xs);
-      font-size: .80rem;
+      font-size: .75rem;
       font-weight: 600;
       cursor: pointer;
-      transition: border-color .15s, color .15s, background .15s;
-      letter-spacing: .02em;
+      transition: border-color .15s, color .15s;
+      letter-spacing: .03em;
     }
-    .admin-btn:hover {
-      border-color: rgba(255,255,255,0.70);
-      color: #fff;
-      background: rgba(255,255,255,0.08);
-    }
+    .admin-btn:hover { border-color: rgba(255,255,255,0.55); color: rgba(255,255,255,0.9); }
 
     /* ── 페이지 래퍼 ── */
     .page-wrap {
@@ -124,80 +113,81 @@
 
     /* ── 공통 버튼 ── */
     .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
       border: none; cursor: pointer;
       border-radius: var(--radius-sm);
-      font-size: .95rem; font-weight: 700;
-      padding: 12px 24px;
-      transition: background .15s, color .15s, border-color .15s;
+      font-size: .9rem; font-weight: 700;
+      padding: 10px 20px;
+      transition: background .13s, color .13s, border-color .13s;
       font-family: inherit;
       letter-spacing: .01em;
+      white-space: nowrap;
     }
     .btn-primary {
       background: var(--navy);
       color: #fff;
-      border: 2px solid var(--navy);
+      border: 1.5px solid var(--navy);
     }
     .btn-primary:hover { background: var(--navy-hover); border-color: var(--navy-hover); }
-    .btn-primary:active { background: #111d36; border-color: #111d36; }
+    .btn-primary:active { background: #131f45; }
     .btn-secondary {
       background: var(--surface);
       color: var(--text-muted);
-      border: 2px solid var(--border-strong);
+      border: 1.5px solid var(--border-strong);
     }
-    .btn-secondary:hover { background: var(--surface-2); color: var(--navy); border-color: var(--navy); }
+    .btn-secondary:hover { color: var(--navy); border-color: var(--navy); }
     .btn-lg {
-      padding: 16px 36px;
-      font-size: 1.1rem;
+      padding: 14px 32px;
+      font-size: 1rem;
       border-radius: var(--radius);
-      min-height: 60px;
+      min-height: 52px;
     }
     .btn-xl {
-      padding: 20px 40px;
-      font-size: 1.2rem;
+      padding: 18px 36px;
+      font-size: 1.1rem;
       border-radius: var(--radius-lg);
-      min-height: 70px;
+      min-height: 64px;
       width: 100%;
     }
-    .btn-danger { background: var(--error); color: #fff; border: 2px solid var(--error); }
-    .btn-danger:hover { background: #aa1c00; border-color: #aa1c00; }
-    .btn-success { background: var(--success); color: #fff; border: 2px solid var(--success); }
+    .btn-danger { background: var(--error); color: #fff; border: 1.5px solid var(--error); }
+    .btn-danger:hover { background: #a93226; border-color: #a93226; }
+    .btn-success { background: var(--success); color: #fff; border: 1.5px solid var(--success); }
 
     /* ── 플래시 메시지 ── */
-    .flash { padding: 14px 20px; border-radius: var(--radius-sm); margin-bottom: 14px; font-weight: 600; font-size: .95rem; }
-    .flash-success { background: var(--success-light); border: 1.5px solid #7dd09a; color: #14532d; }
-    .flash-error   { background: var(--error-light);   border: 1.5px solid #f0a090; color: #991100; }
+    .flash { padding: 12px 18px; border-radius: var(--radius-sm); margin-bottom: 12px; font-weight: 600; font-size: .9rem; }
+    .flash-success { background: var(--success-light); border: 1px solid #8ecfab; color: #145a30; }
+    .flash-error   { background: var(--error-light); border: 1px solid #e8a090; color: #8c2a1e; }
 
     /* ── 프로그레스 스텝 바 ── */
     .step-progress {
       background: var(--surface);
-      border-bottom: 1.5px solid var(--border);
-      padding: 0 28px;
-      height: 54px;
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 48px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 0;
     }
     .sp-item {
-      display: flex; align-items: center; gap: 8px;
-      font-size: .84rem; font-weight: 600;
+      display: flex; align-items: center; gap: 7px;
+      font-size: .80rem; font-weight: 600;
       color: var(--text-faint);
-      padding: 0 12px;
+      padding: 0 10px;
       white-space: nowrap;
     }
     .sp-item.active { color: var(--navy); }
     .sp-item.done   { color: var(--text-muted); }
     .sp-dot {
-      width: 26px; height: 26px;
+      width: 22px; height: 22px;
       border-radius: 50%;
       background: var(--surface-2);
-      border: 2px solid var(--border-strong);
+      border: 1.5px solid var(--border-strong);
       color: var(--text-faint);
       display: flex; align-items: center; justify-content: center;
-      font-size: .74rem; font-weight: 800;
+      font-size: .68rem; font-weight: 800;
       flex-shrink: 0;
-      transition: background .15s, border-color .15s, color .15s;
+      transition: background .13s, border-color .13s, color .13s;
     }
     .sp-item.active .sp-dot {
       background: var(--navy);
@@ -210,7 +200,7 @@
       color: var(--text-muted);
     }
     .sp-sep {
-      width: 28px; height: 1.5px;
+      width: 20px; height: 1px;
       background: var(--border);
       flex-shrink: 0;
     }
@@ -218,77 +208,78 @@
     /* ── 키오스크 선택 카드 ── */
     .kiosk-card {
       background: var(--surface);
-      border: 2px solid var(--border);
+      border: 1.5px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 24px 16px 20px;
+      padding: 20px 14px 16px;
       display: flex; flex-direction: column;
-      align-items: center; gap: 12px;
+      align-items: flex-start; gap: 10px;
       cursor: pointer;
-      transition: border-color .15s, background .15s;
-      text-align: center;
-      min-height: 130px;
-      justify-content: center;
+      transition: border-color .13s, background .13s;
+      text-align: left;
+      min-height: 110px;
+      justify-content: flex-end;
     }
     .kiosk-card:hover {
       border-color: var(--navy);
       background: var(--navy-light);
     }
-    .kiosk-card:active {
-      background: var(--navy-mid);
-    }
+    .kiosk-card:active { background: #dce2f0; }
     .kiosk-card.selected {
       border-color: var(--navy);
-      border-width: 2.5px;
+      border-width: 2px;
       background: var(--navy-light);
     }
     .kiosk-card.direct {
       border-style: dashed;
       border-color: var(--border-strong);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     }
     .kiosk-card.direct:hover,
     .kiosk-card.direct.open {
       border-color: var(--navy);
-      background: var(--navy-light);
       border-style: solid;
+      background: var(--navy-light);
     }
     .kc-icon {
-      width: 48px; height: 48px;
+      width: 40px; height: 40px;
       border-radius: var(--radius-sm);
       background: var(--navy-light);
-      border: 1.5px solid var(--navy-mid);
+      border: 1px solid var(--navy-border);
       color: var(--navy);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
     .kc-label {
-      font-size: .95rem; font-weight: 700;
+      font-size: .92rem; font-weight: 700;
       color: var(--text);
-      line-height: 1.3;
+      line-height: 1.35;
     }
 
     /* ── 직접입력 영역 ── */
     .direct-area {
       display: none;
       background: var(--surface);
-      border: 2px solid var(--border-strong);
+      border: 1.5px solid var(--border-strong);
       border-radius: var(--radius);
-      padding: 18px;
+      padding: 16px;
       margin-top: 8px;
     }
     .direct-area.open { display: block; }
-    .direct-row { display: flex; gap: 10px; }
+    .direct-row { display: flex; gap: 8px; }
     .kiosk-input {
       flex: 1;
-      border: 2px solid var(--border-strong);
+      border: 1.5px solid var(--border-strong);
       border-radius: var(--radius-sm);
-      padding: 14px 16px;
-      font-size: 1rem;
+      padding: 12px 14px;
+      font-size: .95rem;
       font-weight: 500;
       color: var(--text);
       background: var(--bg);
       outline: none;
       font-family: inherit;
-      transition: border-color .15s;
+      transition: border-color .13s;
     }
     .kiosk-input:focus { border-color: var(--navy); background: #fff; }
     .kiosk-input.error { border-color: var(--error); }
@@ -299,17 +290,17 @@
       bottom: 0; left: 0; right: 0;
       height: var(--footer-h);
       background: var(--surface);
-      border-top: 2px solid var(--border);
+      border-top: 1px solid var(--border);
       display: flex; align-items: center;
-      padding: 0 28px;
-      gap: 16px;
+      padding: 0 24px;
+      gap: 14px;
       z-index: 50;
     }
     .bottom-action .btn-back {
-      display: flex; align-items: center; gap: 8px;
-      color: var(--text-muted); font-size: .92rem; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-muted); font-size: .88rem; font-weight: 600;
       background: none; border: none; cursor: pointer;
-      padding: 10px 0; transition: color .15s;
+      padding: 10px 0; transition: color .13s;
       flex-shrink: 0;
     }
     .bottom-action .btn-back:hover { color: var(--navy); }
@@ -320,13 +311,13 @@
   <header class="top-bar">
     <div class="top-bar-logo">
       <div class="top-bar-logo-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
           <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
           <polyline points="9 22 9 12 15 12 15 22"/>
         </svg>
       </div>
       <div class="top-bar-logo-text">
-        <div class="institution">인하대학교</div>
+        <div class="institution">Inha University</div>
         <div class="dept">의과학연구소</div>
       </div>
     </div>
@@ -334,7 +325,7 @@
       <span class="top-bar-time" id="topClock"></span>
       {% if request.endpoint == 'index' %}
       <a href="{{ url_for('admin_login') }}">
-        <button class="admin-btn">⚙ 관리자</button>
+        <button class="admin-btn">관리자</button>
       </a>
       {% endif %}
     </div>
@@ -342,7 +333,7 @@
 
   {% with messages = get_flashed_messages(with_categories=True) %}
     {% if messages %}
-      <div style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:9999;width:90%;max-width:520px;">
+      <div style="position:fixed;top:68px;left:50%;transform:translateX(-50%);z-index:9999;width:90%;max-width:480px;">
         {% for cat, msg in messages %}
           <div class="flash flash-{{ 'error' if cat=='error' else 'success' }}">{{ msg }}</div>
         {% endfor %}
@@ -366,7 +357,7 @@
     tickTop(); setInterval(tickTop, 1000);
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.btn, .kiosk-card').forEach(el => {
-        el.addEventListener('touchstart', () => { el.style.opacity = '.85'; }, {passive:true});
+        el.addEventListener('touchstart', () => { el.style.opacity = '.82'; }, {passive:true});
         el.addEventListener('touchend',   () => { el.style.opacity = '1'; });
       });
     });

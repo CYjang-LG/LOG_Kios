@@ -4,126 +4,154 @@
 <style>
   .kiosk-home {
     min-height: calc(100vh - var(--header-h));
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--bg);
+  }
+
+  /* 좌측 패널 - 시계/기관 정보 */
+  .home-left {
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
-    background: var(--bg);
-    padding: 40px 32px;
-    gap: 0;
+    padding: 48px 40px 48px 48px;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
   }
-  .home-logo-wrap {
-    margin-bottom: 32px;
-    text-align: center;
-  }
-  .home-logo-wrap img {
-    max-width: 240px;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-  }
-  .home-time-block {
-    text-align: center;
-    margin-bottom: 48px;
-  }
-  .home-date {
-    font-size: 1rem;
-    color: var(--text-muted);
-    font-weight: 500;
-    margin-bottom: 8px;
-    letter-spacing: .02em;
+  .home-label {
+    font-size: .70rem;
+    font-weight: 700;
+    color: var(--text-faint);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
   }
   .home-clock {
-    font-size: 5rem;
+    font-size: 4.8rem;
     font-weight: 900;
     color: var(--navy);
-    letter-spacing: .04em;
+    letter-spacing: .01em;
     font-variant-numeric: tabular-nums;
     line-height: 1;
+    margin-bottom: 6px;
+  }
+  .home-date {
+    font-size: .95rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 36px;
   }
   .home-divider {
-    width: 60px; height: 4px;
-    background: linear-gradient(90deg, var(--navy), var(--teal));
-    border-radius: 4px;
-    margin: 24px auto 32px;
+    width: 32px;
+    height: 2px;
+    background: var(--navy);
+    margin-bottom: 24px;
   }
-  .home-sub {
+  .home-institution {
+    font-size: .82rem;
+    color: var(--text-faint);
+    font-weight: 500;
+    letter-spacing: .04em;
+    margin-bottom: 4px;
+  }
+  .home-dept-name {
     font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* 우측 패널 - 액션 */
+  .home-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px 48px 48px 40px;
+    gap: 24px;
+  }
+  .home-right-heading {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.4;
+    letter-spacing: -.01em;
+  }
+  .home-right-sub {
+    font-size: .88rem;
     color: var(--text-muted);
-    margin-bottom: 40px;
-    text-align: center;
     line-height: 1.7;
-    max-width: 360px;
+    font-weight: 400;
+    max-width: 280px;
+    margin-top: -12px;
   }
   .start-btn {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    max-width: 480px;
     background: var(--navy);
     color: #fff;
-    border: none;
+    border: 1.5px solid var(--navy);
     cursor: pointer;
-    font-size: 1.2rem;
-    font-weight: 800;
-    padding: 26px 32px;
-    border-radius: var(--radius-lg);
-    transition: all .2s;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 18px 22px;
+    border-radius: var(--radius);
+    transition: background .13s, border-color .13s;
     font-family: inherit;
-    box-shadow: 0 8px 32px rgba(13,43,107,0.28);
     letter-spacing: .01em;
   }
-  .start-btn:hover {
-    background: var(--navy-hover);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 40px rgba(13,43,107,0.34);
-  }
-  .start-btn:active { transform: translateY(0); }
+  .start-btn:hover { background: var(--navy-hover); border-color: var(--navy-hover); }
+  .start-btn:active { background: #131f45; }
   .start-btn-arrow {
-    width: 44px; height: 44px;
-    background: rgba(255,255,255,0.18);
-    border-radius: 12px;
+    width: 34px; height: 34px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: var(--radius-xs);
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
-  .accent-bar {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: 5px;
-    background: linear-gradient(90deg, var(--navy), var(--teal), var(--navy));
-    background-size: 200% 100%;
-    animation: shimmer 3s linear infinite;
+  .home-notice {
+    font-size: .76rem;
+    color: var(--text-faint);
+    line-height: 1.6;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
   }
-  @keyframes shimmer {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
+  .home-notice strong { color: var(--text-muted); font-weight: 600; }
 </style>
 {% endblock %}
 {% block body %}
 <div class="kiosk-home">
-  <div class="home-logo-wrap">
-    <img src="{{ url_for('static', filename='inha_logo.png') }}" alt="인하대학교 로고" loading="eager">
-  </div>
-  <div class="home-time-block">
+  <div class="home-left">
+    <div class="home-label">현재 시각</div>
+    <div class="home-clock" id="clock">--:--</div>
     <div class="home-date" id="kdate"></div>
-    <div class="home-clock" id="clock">--:--:--</div>
+    <div class="home-divider"></div>
+    <div class="home-institution">인하대학교</div>
+    <div class="home-dept-name">의과학연구소</div>
   </div>
-  <div class="home-divider"></div>
-  <p class="home-sub">연구소 출입 전 방문 정보를 등록해 주세요.</p>
-  <a href="{{ url_for('step_affiliation') }}" style="width:100%;max-width:480px;display:block;">
-    <button class="start-btn">
-      <span>방문 기록 등록하기</span>
-      <div class="start-btn-arrow">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M5 12h14M12 5l7 7-7 7"/>
-        </svg>
-      </div>
-    </button>
-  </a>
+
+  <div class="home-right">
+    <div>
+      <div class="home-right-heading">방문자 출입<br>등록</div>
+      <p class="home-right-sub">연구소 출입 전 방문 정보를 등록해 주세요. 미등록 시 출입이 제한될 수 있습니다.</p>
+    </div>
+    <a href="{{ url_for('step_affiliation') }}" style="display:block;">
+      <button class="start-btn">
+        <span>등록 시작하기</span>
+        <div class="start-btn-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </button>
+    </a>
+    <div class="home-notice">
+      <strong>운영 안내</strong> — 등록된 정보는 출입 기록 관리 목적으로만 사용되며,
+      퇴실 후 자동 갱신됩니다.
+    </div>
+  </div>
 </div>
-<div class="accent-bar"></div>
 {% endblock %}
 {% block script %}
 <script>
@@ -131,8 +159,9 @@
   function tick() {
     const n = new Date();
     const pad = x => String(x).padStart(2,'0');
-    document.getElementById('clock').textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
-    document.getElementById('kdate').textContent = `${n.getFullYear()}년 ${pad(n.getMonth()+1)}월 ${pad(n.getDate())}일 (${days[n.getDay()]})`;
+    document.getElementById('clock').textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}`;
+    document.getElementById('kdate').textContent =
+      `${n.getFullYear()}.${pad(n.getMonth()+1)}.${pad(n.getDate())} (${days[n.getDay()]})`;
   }
   tick(); setInterval(tick, 1000);
   setTimeout(() => location.reload(), 600000);
