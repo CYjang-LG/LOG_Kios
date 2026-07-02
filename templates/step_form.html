@@ -4,27 +4,27 @@
 <style>
   .kiosk-page {
     min-height: calc(100vh - var(--header-h) - var(--footer-h));
-    padding: 0 32px 24px;
+    padding: 0 24px 16px;
     display: flex; flex-direction: column;
   }
   .page-header {
-    padding: 28px 0 20px;
+    padding: 16px 0 14px;
     border-bottom: 1.5px solid var(--border);
-    margin-bottom: 24px;
+    margin-bottom: 14px;
   }
-  .page-title { font-size: 1.6rem; font-weight: 900; color: var(--navy); margin-bottom: 4px; letter-spacing: -.01em; }
-  .page-sub   { font-size: .95rem; color: var(--text-muted); }
+  .page-title { font-size: 1.35rem; font-weight: 900; color: var(--navy); margin-bottom: 3px; letter-spacing: -.01em; }
+  .page-sub   { font-size: .88rem; color: var(--text-muted); }
 
   /* 요약 칩 */
   .summary-bar {
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: 6px;
     flex-wrap: wrap;
-    margin-top: 10px;
+    margin-top: 8px;
   }
   .summary-chip {
     display: inline-flex; align-items: center; gap: 5px;
-    padding: 5px 14px; border-radius: 50px;
-    font-size: .85rem; font-weight: 700;
+    padding: 4px 12px; border-radius: 50px;
+    font-size: .82rem; font-weight: 700;
     background: var(--navy-light); color: var(--navy);
   }
   .summary-chip.missing {
@@ -37,23 +37,22 @@
     background: var(--surface);
     border: 1.5px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 28px;
-    margin-bottom: 16px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
     box-shadow: var(--shadow-sm);
   }
   .form-section-label {
-    font-size: .78rem; font-weight: 800;
+    font-size: .74rem; font-weight: 800;
     color: var(--text-muted);
     letter-spacing: .06em;
     text-transform: uppercase;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
   }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .form-group { margin-bottom: 16px; }
+  .form-group { margin-bottom: 10px; }
   .form-group:last-child { margin-bottom: 0; }
   .form-label {
-    display: block; margin-bottom: 7px;
-    font-size: .88rem; font-weight: 700;
+    display: block; margin-bottom: 5px;
+    font-size: .84rem; font-weight: 700;
     color: var(--text-muted);
   }
   .form-label .req { color: var(--navy); }
@@ -63,8 +62,8 @@
     border: 2px solid var(--border-strong);
     border-radius: var(--radius-sm);
     color: var(--text);
-    font-size: 1rem; font-weight: 500;
-    padding: 14px 16px;
+    font-size: .95rem; font-weight: 500;
+    padding: 10px 14px;
     outline: none;
     transition: border-color .2s, background .2s;
     -webkit-appearance: none;
@@ -72,38 +71,41 @@
   }
   .form-control:focus { border-color: var(--navy); background: #fff; }
   .form-control.error { border-color: var(--error); }
+
+  /* 방문일시: 날짜 위, 시간 아래 (세로 배치) */
+  .datetime-block { display: flex; flex-direction: column; gap: 10px; }
   .time-row { display: grid; grid-template-columns: 1fr 18px 1fr; gap: 8px; align-items: center; }
   .time-sep { color: var(--text-faint); text-align: center; font-weight: 700; }
 
   /* 방문 목적 칩 */
-  .purpose-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+  .purpose-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
   .purpose-chip {
-    padding: 11px 20px;
+    padding: 8px 16px;
     border-radius: 50px;
     background: var(--bg);
     border: 2px solid var(--border-strong);
     color: var(--text-muted);
-    font-size: .95rem; font-weight: 700;
+    font-size: .88rem; font-weight: 700;
     cursor: pointer;
     transition: all .18s;
     font-family: inherit;
   }
   .purpose-chip:hover { border-color: var(--navy); color: var(--navy); background: var(--navy-light); }
   .purpose-chip.active { background: var(--navy); border-color: var(--navy); color: #fff; box-shadow: 0 4px 12px rgba(13,43,107,0.20); }
-  .purpose-err { display: none; color: var(--error); font-size: .85rem; font-weight: 600; margin-top: 6px; }
+  .purpose-err { display: none; color: var(--error); font-size: .83rem; font-weight: 600; margin-top: 5px; }
   .purpose-err.show { display: block; }
-  .purpose-input-wrap { display: none; margin-top: 8px; }
+  .purpose-input-wrap { display: none; margin-top: 6px; }
   .purpose-input-wrap.open { display: block; }
 
   /* 동반 인원 카운터 */
-  .extra-row { display: flex; align-items: center; gap: 14px; }
+  .extra-row { display: flex; align-items: center; gap: 12px; }
   .cnt-btn {
-    width: 44px; height: 44px;
+    width: 38px; height: 38px;
     border-radius: 50%;
     background: var(--bg);
     border: 2px solid var(--border-strong);
     color: var(--navy);
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
     transition: all .18s;
@@ -112,18 +114,21 @@
     flex-shrink: 0;
   }
   .cnt-btn:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
-  .extra-count { width: 60px; text-align: center; font-size: 1.1rem; font-weight: 800; border: 2px solid var(--border-strong); border-radius: var(--radius-sm); padding: 10px 0; background: var(--bg); }
-  .extra-unit { color: var(--text-muted); font-size: .9rem; font-weight: 600; }
+  .extra-count { width: 54px; text-align: center; font-size: 1rem; font-weight: 800; border: 2px solid var(--border-strong); border-radius: var(--radius-sm); padding: 8px 0; background: var(--bg); }
+  .extra-unit { color: var(--text-muted); font-size: .88rem; font-weight: 600; }
+
+  /* 추가정보: 동반인원 위, 기타메모 아래 (세로 배치) */
+  .extra-block { display: flex; flex-direction: column; gap: 10px; }
 
   /* 알림 배너 */
   .info-alert {
     background: var(--error-light);
     border: 2px solid #fca5a5;
     border-radius: var(--radius-sm);
-    padding: 14px 18px;
-    margin-bottom: 16px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
     color: var(--error);
-    font-size: .95rem; font-weight: 600;
+    font-size: .9rem; font-weight: 600;
     display: none;
   }
   .info-alert.show { display: block; }
@@ -175,9 +180,10 @@
     <input type="hidden" name="name"        value="{{ name }}">
     <input type="hidden" name="purpose"     id="purposeFinal">
 
+    <!-- 방문 일시: 날짜 위, 방문시간 아래 -->
     <div class="form-card">
       <div class="form-section-label">방문 일시</div>
-      <div class="form-row">
+      <div class="datetime-block">
         <div class="form-group">
           <label class="form-label">날짜 <span class="req">*</span></label>
           <input type="date" name="visit_date" class="form-control" value="{{ today }}" required>
@@ -193,6 +199,7 @@
       </div>
     </div>
 
+    <!-- 방문 목적 -->
     <div class="form-card">
       <div class="form-section-label">방문 목적 <span class="req" style="font-size:.9rem;">*</span></div>
       <div class="form-group">
@@ -210,9 +217,10 @@
       </div>
     </div>
 
+    <!-- 추가 정보: 동반인원 위, 기타메모 아래 -->
     <div class="form-card">
       <div class="form-section-label">추가 정보</div>
-      <div class="form-row">
+      <div class="extra-block">
         <div class="form-group">
           <label class="form-label">동반 인원 <span style="font-weight:400;">(본인 제외)</span></label>
           <div class="extra-row">
